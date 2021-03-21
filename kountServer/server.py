@@ -66,7 +66,7 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             #colorize
-            return jsonify(test = "a"
+            return jsonify(test = "a")
             command = "python3 egg_kounter.py " + UPLOAD_FOLDER + "/" + filename
             print(command)
             print(os.path.abspath(os.getcwd()))
