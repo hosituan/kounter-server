@@ -13,6 +13,8 @@ import cloudinary.api
 import pickle
 import os, shutil
 
+UPLOAD_FOLDER = 'uploads/'
+
 app = Flask(__name__)
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
