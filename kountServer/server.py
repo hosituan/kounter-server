@@ -68,7 +68,7 @@ def upload_file():
             #colorize
             print(os.path.abspath(os.getcwd()))
             os.system("ls")
-            os.chdir("/kountServer")
+            os.chdir("kountServer")
             os.system("ls")
             command = "python3 egg_kounter.py " + UPLOAD_FOLDER + "/" + filename
             print(command)
