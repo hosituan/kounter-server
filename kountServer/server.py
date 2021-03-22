@@ -70,6 +70,7 @@ def upload_file():
             command = "python3 /kountServer/egg_kounter.py " + UPLOAD_FOLDER + "/" + filename
             print(command)
             print(os.path.abspath(os.getcwd()))
+            os.system("ls")
             os.system(command)
             result_file = str(filename + "_result.jpg")            
             url = upload_diary(result_file)
