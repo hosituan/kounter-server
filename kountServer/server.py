@@ -5,12 +5,18 @@ from os.path import join, dirname, realpath
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, send_file
 from flask import jsonify
 from werkzeug.utils import secure_filename
+from .egg_kounter import startCount
 app = Flask(__name__)
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
+UPLOAD_FOLDER = 'uploads/'
 
+
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
+OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
@@ -21,6 +27,7 @@ import cloudinary.uploader
 import cloudinary.api
 import pickle
 
+
 cloudinary.config(
   cloud_name = 'dggbuxa59',  
   api_key = '651855936159331',  
@@ -28,7 +35,6 @@ cloudinary.config(
 )
 
 def upload_diary(filename):
-  OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
   os.chdir(OUTPUT_FOLDER)
   respone = cloudinary.uploader.upload(filename, folder = "kount_result")
   os.chdir("..")
@@ -64,28 +70,30 @@ def upload_file():
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            #colorize
-            print(os.path.abspath(os.getcwd()))
-            os.system("ls")
-            os.chdir("kountServer")
-            os.system("ls")
-            command = "python3 egg_kounter.py " + UPLOAD_FOLDER + "/" + filename
-            print(command)
-            print(os.path.abspath(os.getcwd()))
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
 
-            os.system(command)
+            startCount(os.path.join(UPLOAD_FOLDER, filename), filename)
+
+            # #colorize
+            # print(os.path.abspath(os.getcwd()))
+            # os.system("ls")
+            # os.chdir("kountServer")
+            # os.system("ls")
+            # command = "python3 egg_kounter.py " + UPLOAD_FOLDER + "/" + filename
+            # print(command)
+            # print(os.path.abspath(os.getcwd()))
+
+            # os.system(command)
             result_file = str(filename + "_result.jpg")            
             url = upload_diary(result_file)
             path = 'output/'
-            read_dictionary = np.load(os.path.join(path,filename+'_result.npy'),allow_pickle='TRUE').item()
+            read_dictionary = np.load(os.path.join(path, filename+'_result.npy'),allow_pickle='TRUE').item()
             count_value = read_dictionary[filename]
             return jsonify(
               success=True,
               message="File name is uploaded",
               fileName=file.filename,
               path=UPLOAD_FOLDER,
-              script=command,
               url=url,
               count=count_value
             )
