@@ -67,24 +67,7 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             #colorize
             return jsonify(test = "a")
-            command = "python3 egg_kounter.py " + UPLOAD_FOLDER + "/" + filename
-            print(command)
-            print(os.path.abspath(os.getcwd()))
-            os.system(command)
-            result_file = str(filename + "_result.jpg")            
-            url = upload_diary(result_file)
-            path = 'output/'
-            read_dictionary = np.load(os.path.join(path,filename+'_result.npy'),allow_pickle='TRUE').item()
-            count_value = read_dictionary[filename]
-            return jsonify(
-              success=True,
-              message="File name is uploaded",
-              fileName=file.filename,
-              path=UPLOAD_FOLDER,
-              script=command,
-              url=url,
-              count=count_value
-            )
+            
 
 
     return "This is GET method"
