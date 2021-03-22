@@ -62,7 +62,7 @@ def upload_diary(filename):
   respone = cloudinary.uploader.upload(filename, folder = "kount_result")
   os.chdir("..")
   clean()
-  return respone['url']
+  return respone['secure_url']
 
 @app.route('/', methods=['GET', 'POST'])
 def welcome():
