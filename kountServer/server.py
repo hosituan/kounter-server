@@ -61,7 +61,7 @@ def upload_diary(filename):
   os.chdir(OUTPUT_FOLDER)
   respone = cloudinary.uploader.upload(filename, folder = "kount_result")
   os.chdir("..")
-  clean()
+  #clean()
   return respone['url']
 
 @app.route('/', methods=['GET', 'POST'])
