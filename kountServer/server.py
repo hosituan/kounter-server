@@ -90,7 +90,7 @@ def upload_file():
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            file.save(os.path.join('uploads/', filename))
             startCount(os.path.join(UPLOAD_FOLDER, filename), filename)
             result_file = str(filename + "_result.jpg")            
             read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
