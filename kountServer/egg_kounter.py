@@ -11,10 +11,7 @@ import sys
 import os
 import numpy as np
 import cv2
-from matplotlib import pyplot as plt
 # from google.colab.patches import cv2_imshow
-from matplotlib import pyplot as plt
-from scipy import ndimage
 from skimage import io, filters
 import math
 import ntpath
