@@ -12,7 +12,6 @@ import os
 import numpy as np
 import cv2
 # from google.colab.patches import cv2_imshow
-from skimage import io, filters
 import math
 import ntpath
 
