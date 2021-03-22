@@ -11,7 +11,6 @@ import sys
 import os
 import numpy as np
 import cv2
-# from google.colab.patches import cv2_imshow
 import math
 import ntpath
 
@@ -19,12 +18,8 @@ import ntpath
 
 
 def startCount(filePath, fileName):
-  # filePath = ""#sys.argv[1]
-  # fileName = ntpath.basename(filePath)
   img = cv2.imread(filePath)
-  # cv2_imshow(img)
   hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-  # cv2_imshow(hsv_img)
 
   # Thresh hold
   gray1 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -150,42 +145,9 @@ def startCount(filePath, fileName):
   print('Number of object is', count)
   APP_ROOT = os.path.dirname(os.path.abspath(__file__))
   OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
-  os.system("ls")
   cv2.imwrite(os.path.join(OUTPUT_FOLDER, fileName +'_result.jpg'), res1)
   dictionary = {fileName:count}
   np.save(os.path.join(OUTPUT_FOLDER, fileName +'_result.npy'), dictionary) 
   cv2.waitKey(0)
   cv2.destroyAllWindows()
-  # # sure background area
-  # sure_bg = cv2.erode(mask, kernel)
-  # # Finding sure foreground area
-  # dist_transform = cv2.distanceTransform(mask,cv2.DIST_L2,5)
-  # # cv2_imshow(dist_transform)
-
-  # ret, sure_fg = cv2.threshold(dist_transform,0.2*dist_transform.max(),255,0)
-  # sure_fg = np.uint8(sure_fg)
-  # # cv2_imshow(sure_fg)
-  # unknown = cv2.subtract(sure_bg, sure_fg)
-
-
-
-  # #Find contour
-  # contours, hierarchy = cv2.findContours(sure_fg.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-  # print(len(contours))
-
-  # count = 0
-  # result = img.copy()
-  # contours_poly = [None]*len(contours)
-  # centers = [None]*len(contours)
-  # radius = [None]*len(contours)
-  # for i, c in enumerate(contours):
-  #         contours_poly[i] = cv2.approxPolyDP(c, 3, True)
-  #         centers[i], radius[i] = cv2.minEnclosingCircle(contours_poly[i])
-
-  # for i in range(len(contours)):
-  #   count += 1
-  #   cv2.circle(result, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (0,255,0), 2)
-  #   cv2.putText(result, str(count), (int(centers[i][0]), int(centers[i][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-    
-
-  # # cv2_imshow(result)
+  

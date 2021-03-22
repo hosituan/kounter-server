@@ -6,11 +6,14 @@ from flask import Flask, flash, request, redirect, url_for, send_from_directory,
 from flask import jsonify
 from werkzeug.utils import secure_filename
 from .egg_kounter import startCount
+
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+import pickle
+import os, shutil
+
 app = Flask(__name__)
-
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = 'uploads/'
-
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
@@ -21,36 +24,51 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
-import cloudinary
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-import pickle
-
-
 cloudinary.config(
   cloud_name = 'dggbuxa59',  
   api_key = '651855936159331',  
   api_secret = 'YZcmgha2qUntVE_QrxeCThMLJEM'  
 )
 
+
+
+#clean after upload
+def clean():
+  for file_name in os.listdir(OUTPUT_FOLDER):
+    file_path = os.path.join(OUTPUT_FOLDER, file_name)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (file_path, e))
+  for file_name in os.listdir(UPLOAD_FOLDER):
+    file_path = os.path.join(UPLOAD_FOLDER, file_name)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+
+
 def upload_diary(filename):
   os.chdir(OUTPUT_FOLDER)
   respone = cloudinary.uploader.upload(filename, folder = "kount_result")
   os.chdir("..")
+  clean()
   return respone['url']
-
-
 
 @app.route('/', methods=['GET', 'POST'])
 def welcome():
-  return "Hello From Ho Si Tuan"
+  return "Hello From Ho Si Tuan - My Kounter"
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -71,33 +89,18 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, filename))
-
             startCount(os.path.join(UPLOAD_FOLDER, filename), filename)
-
-            # #colorize
-            # print(os.path.abspath(os.getcwd()))
-            # os.system("ls")
-            # os.chdir("kountServer")
-            # os.system("ls")
-            # command = "python3 egg_kounter.py " + UPLOAD_FOLDER + "/" + filename
-            # print(command)
-            # print(os.path.abspath(os.getcwd()))
-
-            # os.system(command)
             result_file = str(filename + "_result.jpg")            
-            url = upload_diary(result_file)
-            path = 'output/'
-            read_dictionary = np.load(os.path.join(path, filename+'_result.npy'),allow_pickle='TRUE').item()
+            read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
             count_value = read_dictionary[filename]
+            url = upload_diary(result_file)
+            
             return jsonify(
               success=True,
-              message="File name is uploaded",
               fileName=file.filename,
-              path=UPLOAD_FOLDER,
               url=url,
               count=count_value
             )
-
 
     return "This is GET method"
 
