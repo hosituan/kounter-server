@@ -17,7 +17,7 @@ import ntpath
 
 
 
-def startCount(filePath, fileName):
+def startCountEggs(filePath, fileName):
   img = cv2.imread(filePath)
   hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 

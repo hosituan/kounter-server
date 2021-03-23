@@ -5,7 +5,7 @@ from os.path import join, dirname, realpath
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, send_file
 from flask import jsonify
 from werkzeug.utils import secure_filename
-from .egg_kounter import startCount
+from .egg_kounter import startCountEggs
 
 import cloudinary
 import cloudinary.uploader
@@ -87,22 +87,23 @@ def upload_file():
               success=False,
               message="File name is blank",
             )
-
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, filename))
-            startCount(os.path.join(UPLOAD_FOLDER, filename), filename)
-            result_file = str(filename + "_result.jpg")            
-            read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
-            count_value = read_dictionary[filename]
-            url = upload_diary(result_file)
-            
-            return jsonify(
-              success=True,
-              fileName=file.filename,
-              url=url,
-              count=count_value
-            )
+            if request.name == "Chicken Egg":
+              startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
+              result_file = str(filename + "_result.jpg")            
+              read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
+              count_value = read_dictionary[filename]
+              url = upload_diary(result_file)
+              return jsonify(
+                success=True,
+                fileName=file.filename,
+                url=url,
+                count=count_value
+              )
+            return "Wrong name"
+
 
     return "This is GET method"
 
