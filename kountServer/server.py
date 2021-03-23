@@ -90,7 +90,7 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, filename))
-            
+            print(request.args.get("name"))
             if request.args.get("name") == "Chicken Egg":
               startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
               result_file = str(filename + "_result.jpg")            
