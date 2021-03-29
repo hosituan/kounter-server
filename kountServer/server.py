@@ -93,10 +93,10 @@ def upload_file():
             if request.form.get("name") == "Chicken Egg":
               method = 1
               method = request.form.get("method")
-              if method == 1:
-                startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 1)
-              else:
+              if method == "2":
                 startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 2)
+              else:
+                startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 1)
               result_file = str(filename + "_result.jpg")            
               read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
               count_value = read_dictionary[filename]

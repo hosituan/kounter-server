@@ -180,6 +180,7 @@ def startCountEggs(filePath, fileName, method):
       cv2.circle(result, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (0,255,0), 2) # Draw circle
       cv2.putText(result, str(count), (int(centers[i][0]), int(centers[i][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1) # Put text
     final_result = result
+    print("Number of object was counted by method 2 is: ", count)
 
   
   APP_ROOT = os.path.dirname(os.path.abspath(__file__))
