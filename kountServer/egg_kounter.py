@@ -19,12 +19,13 @@ import ntpath
 
 def startCountEggs(filePath, fileName, method):
   img = cv2.imread(filePath)
-  ratio = 500 / img.shape[0]
-  width = int(img.shape[1] *  ratio)
-  height = 500
-  # resize image
-  dim = (width, height)
-  img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+  if img.shape[0] > 500 or img.shape[1] > 500:
+    ratio = 500 / img.shape[0]
+    width = int(img.shape[1] *  ratio)
+    height = 500
+    # resize image
+    dim = (width, height)
+    img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
   hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
   # Thresh hold
