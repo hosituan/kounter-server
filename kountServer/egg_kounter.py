@@ -17,7 +17,7 @@ import ntpath
 
 
 
-def startCountEggs(filePath, fileName):
+def startCountEggs(filePath, fileName, method):
   img = cv2.imread(filePath)
   hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -112,40 +112,73 @@ def startCountEggs(filePath, fileName):
           cv2.drawContours(mask, [currentContour], 0, (255), -1)  
           
   # cv2_imshow(mask)
+  final_result = img.copy()
+  if method == 1:
+    #Find contour
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
-  #Find contour
-  contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    res1 = img.copy()
+    count = 0
+    for con in contours:
+      area = cv2.contourArea(con)
+      radian = int(math.sqrt(area / 3.14))
+      minRad = int(radian * 0.3)
+      maxRad = int(radian * 2)
+      mask_temp = np.zeros(mask.shape[:2],dtype=np.uint8)
+      cv2.drawContours(mask_temp, [con], 0, (255), -1)  
+      circles = cv2.HoughCircles(mask_temp,cv2.HOUGH_GRADIENT,1, 1.2 * radian,
+                                param1=100,param2=10,minRadius=minRad,maxRadius=maxRad)
+      
+      if circles is not None:
+        circles = np.uint16(np.around(circles))
+        for i in circles[0, :]:
+          # circle outline
+          radius = i[2]
+          if radius > radius_avg:
+            count += 1
+            center = (i[0], i[1])
+          # circle center
+            cv2.putText(res1, str(count), center, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.circle(res1, center, radius, (0, 0, 255), 3)
+    print('Number of object is founded by method 1  is', count)
+    final_result = res1
+  else:
+    # Try another way, by distanceTransform
+    # https://docs.opencv.org/3.4/d2/dbd/tutorial_distance_transform.html
 
-  res1 = img.copy()
-  count = 0
-  for con in contours:
-    area = cv2.contourArea(con)
-    radian = int(math.sqrt(area / 3.14))
-    minRad = int(radian * 0.3)
-    maxRad = int(radian * 2)
-    mask_temp = np.zeros(mask.shape[:2],dtype=np.uint8)
-    cv2.drawContours(mask_temp, [con], 0, (255), -1)  
-    circles = cv2.HoughCircles(mask_temp,cv2.HOUGH_GRADIENT,1, 1.2 * radian,
-                              param1=100,param2=10,minRadius=minRad,maxRadius=maxRad)
+    # sure background area
+    sure_bg = cv2.erode(mask, kernel)
+    # Finding sure foreground area
+    dist_transform = cv2.distanceTransform(mask,cv2.DIST_L2,5)
     
-    if circles is not None:
-      circles = np.uint16(np.around(circles))
-      for i in circles[0, :]:
-        # circle outline
-        radius = i[2]
-        if radius > radius_avg:
-          count += 1
-          center = (i[0], i[1])
-        # circle center
-          cv2.putText(res1, str(count), center, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-          cv2.circle(res1, center, radius, (0, 0, 255), 3)
+    # Draw sure figure from distance transform
+    ret, sure_fg = cv2.threshold(dist_transform,0.2*dist_transform.max(),255,0) # 0.2 is important, the bigger it is, the object is smaller (to the object center)
+    sure_fg = np.uint8(sure_fg)
+    unknown = cv2.subtract(sure_bg, sure_fg)
 
+    #Find contour for sure figure
+    contours, hierarchy = cv2.findContours(sure_fg.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    print(len(contours))
 
+    count = 0
+    result = img.copy()
+    contours_poly = [None]*len(contours)
+    centers = [None]*len(contours)
+    radius = [None]*len(contours)
+    for i, c in enumerate(contours):
+            contours_poly[i] = cv2.approxPolyDP(c, 3, True)
+            centers[i], radius[i] = cv2.minEnclosingCircle(contours_poly[i])
 
-  print('Number of object is', count)
+    for i in range(len(contours)):
+      count += 1
+      cv2.circle(result, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (0,255,0), 2) # Draw circle
+      cv2.putText(result, str(count), (int(centers[i][0]), int(centers[i][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1) # Put text
+    final_result = result
+
+  
   APP_ROOT = os.path.dirname(os.path.abspath(__file__))
   OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
-  cv2.imwrite(os.path.join(OUTPUT_FOLDER, fileName +'_result.jpg'), res1)
+  cv2.imwrite(os.path.join(OUTPUT_FOLDER, fileName +'_result.jpg'), final_result)
   dictionary = {fileName:count}
   np.save(os.path.join(OUTPUT_FOLDER, fileName +'_result.npy'), dictionary) 
   cv2.waitKey(0)
