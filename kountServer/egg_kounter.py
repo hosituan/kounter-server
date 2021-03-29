@@ -175,11 +175,17 @@ def startCountEggs(filePath, fileName, method):
     for i, c in enumerate(contours):
             contours_poly[i] = cv2.approxPolyDP(c, 3, True)
             centers[i], radius[i] = cv2.minEnclosingCircle(contours_poly[i])
-
+    totalRadius = 0
     for i in range(len(contours)):
-      count += 1
-      cv2.circle(result, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (0,255,0), 2) # Draw circle
-      cv2.putText(result, str(count), (int(centers[i][0]), int(centers[i][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1) # Put text
+      totalRadius += radius[i]
+    averageRadius = totalRadius / len(contours)
+    diff_average_radius = 0.4
+    for i in range(len(contours)):
+      if radius[i] > averageRadius * diff_average_radius:  
+        count += 1
+        cv2.circle(result, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), (0,255,0), 2) # Draw circle
+        cv2.putText(result, str(count), (int(centers[i][0]), int(centers[i][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1) # Put text
+
     final_result = result
     print("Number of object was counted by method 2 is: ", count)
 
