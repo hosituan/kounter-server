@@ -5,14 +5,14 @@ from os.path import join, dirname, realpath
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, send_file
 from flask import jsonify
 from werkzeug.utils import secure_filename
-from .egg_kounter import startCountEggs
-
+#from .egg_kounter import startCountEggs
+from .eggKounter import startCountEggs
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 import pickle
 import os, shutil
-
+import downloadModel
 UPLOAD_FOLDER = 'uploads/'
 
 app = Flask(__name__)
@@ -91,12 +91,13 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, filename))
             if request.form.get("name") == "Chicken Egg":
-              method = 1
-              method = request.form.get("method")
-              if method == "2":
-                startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 2)
-              else:
-                startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 1)
+              startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
+              # method = 1
+              # method = request.form.get("method")
+              # if method == "2":
+              #   startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 2)
+              # else:
+              #   startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 1)
               result_file = str(filename + "_result.jpg")            
               read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
               count_value = read_dictionary[filename]
@@ -114,8 +115,9 @@ def upload_file():
 
 
 
-# if __name__ == "__main__":
-#   port = int(os.environ.get("PORT", 5000))
-#   app.run(host='0.0.0.0', port=port, debug=True)
+if __name__ == "__main__":
+  downloadModel.main()
+  port = int(os.environ.get("PORT", 5000))
+  app.run(host='0.0.0.0', port=port, debug=True)
 
 

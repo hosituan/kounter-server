@@ -13,3 +13,8 @@ MarkupSafe==1.1.1
 opencv-python==4.2.0.34
 numpy==1.18.5
 Werkzeug==1.0.1
+tensorflow==1.14
+tensorflow-gpu==1.14
+keras==2.2.4
+keras_resnet==0.2.0
+requests==2.25.1
