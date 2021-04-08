@@ -25,7 +25,8 @@ tf.disable_v2_behavior()
 
 from tensorflow.python.keras.backend import get_session
 import keras
-graph = tf.get_default_graph()
+import tensorflow as tf
+#graph = tf.get_default_graph()
 
 # set tf backend to allow memory to grow, instead of claiming everything
 
