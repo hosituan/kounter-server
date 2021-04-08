@@ -15,8 +15,9 @@ class Timeout():
         self.sec = sec
 
     def __enter__(self):
-        signal.signal(signal.SIGALRM, self.raise_timeout)
-        signal.setitimer(signal.ITIMER_REAL, self.sec)
+        print("Time out")
+       # signal.signal(signal.SIGALRM, self.raise_timeout)
+       # signal.setitimer(signal.ITIMER_REAL, self.sec)
 
     def __exit__(self, *args):
         signal.alarm(0)  # disable alarm
@@ -94,7 +95,7 @@ def gaussian_kl_diag(mu1, cov1, mu2, cov2):
 
 def collapse(original_detection_centers, k, offset, max_iter=100, epsilon=1e-100):
     try:
-        with Timeout(3):
+        with Timeout(999):
             n = original_detection_centers.shape[0]
             mu_x = original_detection_centers.x - offset[0]
             mu_y = original_detection_centers.y - offset[1]

@@ -116,7 +116,7 @@ class DuplicateMerger(object):
             contour_bbox = extract_boxes_from_edge_boxes(numpy.array(contour_bounding_rect))[0]
             box_width = contour_bbox[BOX.X2] - contour_bbox[BOX.X1]
             box_height = contour_bbox[BOX.Y2] - contour_bbox[BOX.Y1]
-            contour_area = cv2.contourArea(contour)[0]
+            contour_area = cv2.contourArea(contour)
             offset = contour_bbox[0:2]
             mu = None
             cov = None

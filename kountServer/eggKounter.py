@@ -2,10 +2,10 @@
 import keras
 
 # import keras_retinanet
-from .object_detector_retinanet.keras_retinanet import models
-from .object_detector_retinanet.keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
-from .object_detector_retinanet.keras_retinanet.utils.visualization import draw_box, draw_caption
-from .object_detector_retinanet.keras_retinanet.utils.colors import label_color
+from object_detector_retinanet.keras_retinanet import models
+from object_detector_retinanet.keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
+from object_detector_retinanet.keras_retinanet.utils.visualization import draw_box, draw_caption
+from object_detector_retinanet.keras_retinanet.utils.colors import label_color
 
 # # import for EM Merger and viz
 from object_detector_retinanet.keras_retinanet.utils import EmMerger
