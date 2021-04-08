@@ -112,7 +112,7 @@ def upload_file():
 def count():
   if request.method == 'POST':
     if request.form.get("name") == "Chicken Egg":
-      filename = request.form.get("image_name") 
+      filename = str(request.form.get("imageName"))
       print("Start counting")
       startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
       result_file = str(filename + "_result.jpg")            
@@ -121,7 +121,7 @@ def count():
       url = upload_diary(result_file)
       return jsonify(
         success=True,
-        fileName=file.filename,
+        fileName=filename,
         url=url,
         count=count_value
       )
