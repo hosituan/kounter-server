@@ -2,8 +2,7 @@ import os
 import numpy as np
 import ntpath
 from os.path import join, dirname, realpath
-from flask import Flask, flash, request, redirect, url_for, send_from_directory, send_file
-from flask import jsonify
+from flask import Flask, flash, request, redirect, url_for, send_from_directory, send_file, jsonify
 from werkzeug.utils import secure_filename
 #from .egg_kounter import startCountEggs
 from eggKounter import startCountEggs
@@ -15,8 +14,14 @@ import pickle
 import os, shutil
 from flask_socketio import SocketIO, emit
 import downloadModel
-UPLOAD_FOLDER = 'uploads/'
 
+
+import tensorflow as tf
+import keras
+from object_detector_retinanet.keras_retinanet import models
+from tensorflow.python.keras.backend import get_session
+
+UPLOAD_FOLDER = 'uploads/'
 app = Flask(__name__)
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +29,7 @@ UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
 OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
@@ -92,29 +97,43 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, filename))
-            if request.form.get("name") == "Chicken Egg":
-              print("Start counting")
-              startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
-              result_file = str(filename + "_result.jpg")            
-              read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
-              count_value = read_dictionary[filename]
-              url = upload_diary(result_file)
-              return jsonify(
-                success=True,
-                fileName=file.filename,
-                url=url,
-                count=count_value
-              )
-            return "Wrong name"
-
-
+            return jsonify(
+            success=True,
+            message="Upload image",
+            fileName=file.filename,
+            )
+        return jsonify(
+          success=False,
+          message="Only accept PNG, JPG, JPEG extension"
+        )
     return "This is GET method"
 
+@app.route('/count', methods=['GET', 'POST'])
+def count():
+  if request.method == 'POST':
+    if request.form.get("name") == "Chicken Egg":
+      filename = request.form.get("image_name") 
+      print("Start counting")
+      startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
+      result_file = str(filename + "_result.jpg")            
+      read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
+      count_value = read_dictionary[filename]
+      url = upload_diary(result_file)
+      return jsonify(
+        success=True,
+        fileName=file.filename,
+        url=url,
+        count=count_value
+      )
+    return jsonify(
+                success=False,
+                message="We can't count this type!"
+              )
+  return jsonify(
+                success=False,
+                message="This is GET method"
+              )
 
-import tensorflow as tf
-import keras
-from object_detector_retinanet.keras_retinanet import models
-from tensorflow.python.keras.backend import get_session
 
 def get_session():
     config = tf.compat.v1.ConfigProto()
@@ -134,5 +153,3 @@ print("loaded model")
 
 # if __name__ == "__main__":
 #   socketio.run(app, host='0.0.0.0', port=80, debug=False,use_reloader=False)
-
-
