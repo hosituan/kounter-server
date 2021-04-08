@@ -59,13 +59,13 @@ def startCountEggs(filePath, fileName):
   #image = read_image_bgr(image_path)
   image = cv2.imread(image_path)
   #resize image
-  if image.shape[0] > 500 or image.shape[1] > 500:
-    ratio = 500 / image.shape[0]
-    width = int(image.shape[1] *  ratio)
-    height = 500
-    # resize image
-    dim = (width, height)
-    image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+#   if image.shape[0] > 500 or image.shape[1] > 500:
+#     ratio = 500 / image.shape[0]
+#     width = int(image.shape[1] *  ratio)
+#     height = 500
+#     # resize image
+#     dim = (width, height)
+#     image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
 
 
   # for filtering predictions based on score (objectness/confidence)

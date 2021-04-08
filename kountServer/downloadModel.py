@@ -1,5 +1,6 @@
 import requests
 import os
+import os.path
 def download_file_from_google_drive(id, destination):
     URL = "https://docs.google.com/uc?export=download"
 
@@ -32,4 +33,10 @@ def save_response_content(response, destination):
 def main():
     file_id = '129sQfXjY4doJmMcY1a-ZBRGEzJneuqNR'
     model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
-    download_file_from_google_drive(file_id, model_path)
+    if os.path.isfile(model_path):
+        print ("Model exist")
+    else:
+        print("Downloading model...")
+        download_file_from_google_drive(file_id, model_path)
+    
+    

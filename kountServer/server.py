@@ -92,12 +92,6 @@ def upload_file():
             file.save(os.path.join(UPLOAD_FOLDER, filename))
             if request.form.get("name") == "Chicken Egg":
               startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
-              # method = 1
-              # method = request.form.get("method")
-              # if method == "2":
-              #   startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 2)
-              # else:
-              #   startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, 1)
               result_file = str(filename + "_result.jpg")            
               read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
               count_value = read_dictionary[filename]
@@ -117,7 +111,6 @@ def upload_file():
 
 if __name__ == "__main__":
   downloadModel.main()
-  port = int(os.environ.get("PORT", 5000))
-  app.run(host='0.0.0.0', port=port, debug=True)
+  app.run(host='0.0.0.0', port=443, debug=True, ssl_context=('cert.pem', 'key.pem'))
 
 
