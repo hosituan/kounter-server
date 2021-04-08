@@ -6,7 +6,7 @@ from flask import Flask, flash, request, redirect, url_for, send_from_directory,
 from flask import jsonify
 from werkzeug.utils import secure_filename
 #from .egg_kounter import startCountEggs
-from .eggKounter import startCountEggs
+from eggKounter import startCountEggs
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -111,6 +111,6 @@ def upload_file():
 
 if __name__ == "__main__":
   downloadModel.main()
-  app.run(host='0.0.0.0', port=443, debug=True, ssl_context=('cert.pem', 'key.pem'))
+  app.run(host='0.0.0.0', port=80, debug=True)
 
 
