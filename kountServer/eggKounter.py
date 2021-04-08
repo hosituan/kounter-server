@@ -10,8 +10,8 @@ from object_detector_retinanet.keras_retinanet.utils.colors import label_color
 from object_detector_retinanet.keras_retinanet.utils import EmMerger
 # from utils import create_folder, root_dir
 
-class MyGlobals(object):
-    model = object
+# class MyGlobals(object):
+#     model = object
 
 import sys
 # import miscellaneous modules
@@ -29,6 +29,10 @@ graph = tf.get_default_graph()
 
 # set tf backend to allow memory to grow, instead of claiming everything
 
+def get_session():
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.allow_growth = True
+    return tf.compat.v1.Session(config=config)
 
 
 def distance(x1, y1, x2, y2):
@@ -39,36 +43,45 @@ def distance(x1, y1, x2, y2):
 # model.summary()
 
 def startCountEggs(filePath, fileName):
+    tf.disable_resource_variables()
+    get_session()
+    # use this environment flag to change which GPU to use
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+    # set the modified tf session as backend in keras
+    keras.backend.tensorflow_backend.set_session(get_session())
+
+    model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
+    model = models.load_model(model_path, backbone_name='resnet50')
+    #MyGlobals.model = model
+    print("loaded model")
+    image_path = filePath 
+    # load image
+    #image = read_image_bgr(image_path)
+    image = cv2.imread(image_path)
+    #resize image
+    #   if image.shape[0] > 500 or image.shape[1] > 500:
+    #     ratio = 500 / image.shape[0]
+    #     width = int(image.shape[1] *  ratio)
+    #     height = 500
+    #     # resize image
+    #     dim = (width, height)
+    #     image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
 
 
-  image_path = filePath 
-  # load image
-  #image = read_image_bgr(image_path)
-  image = cv2.imread(image_path)
-  #resize image
-#   if image.shape[0] > 500 or image.shape[1] > 500:
-#     ratio = 500 / image.shape[0]
-#     width = int(image.shape[1] *  ratio)
-#     height = 500
-#     # resize image
-#     dim = (width, height)
-#     image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
+    # for filtering predictions based on score (objectness/confidence)
+    threshold = 0.3
+
+    # copy to draw on
+    draw = image.copy()
+    # draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
 
 
-  # for filtering predictions based on score (objectness/confidence)
-  threshold = 0.3
+    # preprocess image for network
+    image = preprocess_image(image)
+    image, scale = resize_image(image)
 
-  # copy to draw on
-  draw = image.copy()
-  # draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
-
-
-  # preprocess image for network
-  image = preprocess_image(image)
-  image, scale = resize_image(image)
-
-  # Run inference
-  with graph.as_default():
+    # Run inference
+    # with graph.as_default():
     boxes, hard_scores, labels, soft_scores = MyGlobals.model.predict_on_batch(np.expand_dims(image, axis=0))
 
     hard_score_rate=.3
