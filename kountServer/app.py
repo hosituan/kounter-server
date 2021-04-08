@@ -90,9 +90,9 @@ def upload_file():
             )
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(UPLOAD_FOLDER, filename, model))
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
             if request.form.get("name") == "Chicken Egg":
-              startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
+              startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, model)
               result_file = str(filename + "_result.jpg")            
               read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
               count_value = read_dictionary[filename]
