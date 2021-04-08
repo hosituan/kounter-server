@@ -53,6 +53,7 @@ def startCountEggs(filePath, fileName):
 
   model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
   model = models.load_model(model_path, backbone_name='resnet50')
+  print("loaded model")
 
   image_path = filePath 
   # load image
