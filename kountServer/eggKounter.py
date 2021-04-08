@@ -25,6 +25,7 @@ tf.disable_v2_behavior()
 
 from tensorflow.python.keras.backend import get_session
 import keras
+graph = tf.get_default_graph()
 
 # set tf backend to allow memory to grow, instead of claiming everything
 
@@ -67,83 +68,84 @@ def startCountEggs(filePath, fileName):
   image, scale = resize_image(image)
 
   # Run inference
-  boxes, hard_scores, labels, soft_scores = MyGlobals.model.predict_on_batch(np.expand_dims(image, axis=0))
+  with graph.as_default():
+    boxes, hard_scores, labels, soft_scores = MyGlobals.model.predict_on_batch(np.expand_dims(image, axis=0))
 
-  hard_score_rate=.3
-  max_detections = 9999
+    hard_score_rate=.3
+    max_detections = 9999
 
-  soft_scores = np.squeeze(soft_scores, axis=-1)
-  soft_scores = hard_score_rate * hard_scores + (1 - hard_score_rate) * soft_scores
+    soft_scores = np.squeeze(soft_scores, axis=-1)
+    soft_scores = hard_score_rate * hard_scores + (1 - hard_score_rate) * soft_scores
 
-  # correct boxes for image scale
-  boxes /= scale
+    # correct boxes for image scale
+    boxes /= scale
 
-  # select indices which have a score above the threshold
-  indices = np.where(hard_scores[0, :] > threshold)[0]
+    # select indices which have a score above the threshold
+    indices = np.where(hard_scores[0, :] > threshold)[0]
 
-  # select those scores
-  scores = soft_scores[0][indices]
-  hard_scores = hard_scores[0][indices]
+    # select those scores
+    scores = soft_scores[0][indices]
+    hard_scores = hard_scores[0][indices]
 
-  # find the order with which to sort the scores
-  scores_sort = np.argsort(-scores)[:max_detections]
+    # find the order with which to sort the scores
+    scores_sort = np.argsort(-scores)[:max_detections]
 
-  # select detections
-  image_boxes = boxes[0, indices[scores_sort], :]
-  image_scores = scores[scores_sort]
-  image_hard_scores = hard_scores[scores_sort]
-  image_labels = labels[0, indices[scores_sort]]
-  image_detections = np.concatenate(
-      [image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
-  results = np.concatenate(
-      [image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_hard_scores, axis=1),
-      np.expand_dims(image_labels, axis=1)], axis=1)
-  filtered_data = EmMerger.merge_detections(image_path, results)
-  filtered_boxes = []
-  filtered_scores = []
-  filtered_labels = []
+    # select detections
+    image_boxes = boxes[0, indices[scores_sort], :]
+    image_scores = scores[scores_sort]
+    image_hard_scores = hard_scores[scores_sort]
+    image_labels = labels[0, indices[scores_sort]]
+    image_detections = np.concatenate(
+        [image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
+    results = np.concatenate(
+        [image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_hard_scores, axis=1),
+        np.expand_dims(image_labels, axis=1)], axis=1)
+    filtered_data = EmMerger.merge_detections(image_path, results)
+    filtered_boxes = []
+    filtered_scores = []
+    filtered_labels = []
 
-  csv_data_lst = []
-  csv_data_lst.append(['image_id', 'x1', 'y1', 'x2', 'y2', 'confidence', 'hard_score'])
+    csv_data_lst = []
+    csv_data_lst.append(['image_id', 'x1', 'y1', 'x2', 'y2', 'confidence', 'hard_score'])
 
-  for ind, detection in filtered_data.iterrows():
-      box = np.asarray([detection['x1'], detection['y1'], detection['x2'], detection['y2']])
-      filtered_boxes.append(box)
-      filtered_scores.append(detection['confidence'])
-      filtered_labels.append('{0:.2f}'.format(detection['hard_score']))
-      row = [image_path, detection['x1'], detection['y1'], detection['x2'], detection['y2'],
-            detection['confidence'], detection['hard_score']]
-      csv_data_lst.append(row)
+    for ind, detection in filtered_data.iterrows():
+        box = np.asarray([detection['x1'], detection['y1'], detection['x2'], detection['y2']])
+        filtered_boxes.append(box)
+        filtered_scores.append(detection['confidence'])
+        filtered_labels.append('{0:.2f}'.format(detection['hard_score']))
+        row = [image_path, detection['x1'], detection['y1'], detection['x2'], detection['y2'],
+                detection['confidence'], detection['hard_score']]
+        csv_data_lst.append(row)
 
 
-  print(len(filtered_boxes))
-  count = len(filtered_boxes)  
-  count_temp = 0
-  for box, score, label in zip(filtered_boxes, filtered_scores, filtered_labels):
-      # scores are sorted so we can break
-      if score < threshold:
-          break
-      count_temp += 1
-      text = str(count_temp) + " - " + str(round(score,2))
-      color = [255, 0, 0]#label_color(label) ## BUG HERE LABELS ARE FLOATS SO COLOR IS HARDCODED 
-      
-      b = box.astype(int)
-      x = int((b[0] + b[2]) / 2)
-      y = int((b[1] + b[3]) / 2)
-      radius = int(distance(b[0],b[1], b[2], b[3]) / 2  * 0.6)
-      cv2.circle(draw, (x,y), radius, (0, 255, 0), 2) #draw circle
-      cv2.putText(draw, text, (x,y),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1) # Put text
-      # draw_box(draw, b, color=color)
-      
-      # caption = str(round(score,2))
-      # draw_caption(draw, b, caption)
-  APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-  OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
-  cv2.imwrite(os.path.join(OUTPUT_FOLDER, fileName +'_result.jpg'), draw)
-  dictionary = {fileName:count}
-  np.save(os.path.join(OUTPUT_FOLDER, fileName +'_result.npy'), dictionary) 
+    print(len(filtered_boxes))
+    count = len(filtered_boxes)  
+    count_temp = 0
+    for box, score, label in zip(filtered_boxes, filtered_scores, filtered_labels):
+        # scores are sorted so we can break
+        if score < threshold:
+            break
+        count_temp += 1
+        text = str(count_temp) + " - " + str(round(score,2))
+        color = [255, 0, 0]#label_color(label) ## BUG HERE LABELS ARE FLOATS SO COLOR IS HARDCODED 
+        
+        b = box.astype(int)
+        x = int((b[0] + b[2]) / 2)
+        y = int((b[1] + b[3]) / 2)
+        radius = int(distance(b[0],b[1], b[2], b[3]) / 2  * 0.6)
+        cv2.circle(draw, (x,y), radius, (0, 255, 0), 2) #draw circle
+        cv2.putText(draw, text, (x,y),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1) # Put text
+        # draw_box(draw, b, color=color)
+        
+        # caption = str(round(score,2))
+        # draw_caption(draw, b, caption)
+    APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+    OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
+    cv2.imwrite(os.path.join(OUTPUT_FOLDER, fileName +'_result.jpg'), draw)
+    dictionary = {fileName:count}
+    np.save(os.path.join(OUTPUT_FOLDER, fileName +'_result.npy'), dictionary) 
 
-  # plt.axis('off')
-  # plt.imshow(draw)
-  # plt.show()    
+    # plt.axis('off')
+    # plt.imshow(draw)
+    # plt.show()    
 
