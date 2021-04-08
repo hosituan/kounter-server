@@ -6,7 +6,7 @@ from object_detector_retinanet.keras_retinanet import models
 from object_detector_retinanet.keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from object_detector_retinanet.keras_retinanet.utils.visualization import draw_box, draw_caption
 from object_detector_retinanet.keras_retinanet.utils.colors import label_color
-
+import app
 # # import for EM Merger and viz
 from object_detector_retinanet.keras_retinanet.utils import EmMerger
 # from utils import create_folder, root_dir
@@ -36,7 +36,7 @@ def distance(x1, y1, x2, y2):
 
 # model.summary()
 
-def startCountEggs(filePath, fileName, model):
+def startCountEggs(filePath, fileName):
 
 
   image_path = filePath 
@@ -66,7 +66,7 @@ def startCountEggs(filePath, fileName, model):
   image, scale = resize_image(image)
 
   # Run inference
-  boxes, hard_scores, labels, soft_scores = model.predict_on_batch(np.expand_dims(image, axis=0))
+  boxes, hard_scores, labels, soft_scores = app.model.predict_on_batch(np.expand_dims(image, axis=0))
 
   hard_score_rate=.3
   max_detections = 9999
