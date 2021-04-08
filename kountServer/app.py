@@ -93,6 +93,7 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, filename))
             if request.form.get("name") == "Chicken Egg":
+              print("Start counting")
               startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
               result_file = str(filename + "_result.jpg")            
               read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
@@ -120,18 +121,18 @@ def get_session():
     config.gpu_options.allow_growth = True
     return tf.compat.v1.Session(config=config)
 
+downloadModel.main()
+tf.disable_resource_variables()
+get_session()
+# set the modified tf session as backend in keras
+keras.backend.tensorflow_backend.set_session(get_session())
+model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
+GlobalModel.model = models.load_model(model_path, backbone_name='resnet50')
+# model.summary()
+print("loaded model")
+# socketio = SocketIO(app)
 
-socketio = SocketIO(app)
-if __name__ == "__main__":
-  downloadModel.main()
-  tf.disable_resource_variables()
-  get_session()
-  # set the modified tf session as backend in keras
-  keras.backend.tensorflow_backend.set_session(get_session())
-  model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
-  GlobalModel.model = models.load_model(model_path, backbone_name='resnet50')
-  # model.summary()
-  print("loaded model")
-  socketio.run(app, host='0.0.0.0', port=80, debug=False,use_reloader=False)
+# if __name__ == "__main__":
+#   socketio.run(app, host='0.0.0.0', port=80, debug=False,use_reloader=False)
 
 
