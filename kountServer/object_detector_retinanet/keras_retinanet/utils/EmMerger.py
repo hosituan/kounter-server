@@ -8,11 +8,11 @@ import pandas
 import scipy
 from scipy.stats import chi2
 
-from object_detector_retinanet.keras_retinanet.utils.Boxes import BOX, extract_boxes_from_edge_boxes, \
+from .object_detector_retinanet.keras_retinanet.utils.Boxes import BOX, extract_boxes_from_edge_boxes, \
     perform_nms_on_image_dataframe
-from object_detector_retinanet.keras_retinanet.utils.CollapsingMoG import collapse
-from object_detector_retinanet.keras_retinanet.utils.image import read_image_bgr
-from object_detector_retinanet.utils import root_dir
+from .object_detector_retinanet.keras_retinanet.utils.CollapsingMoG import collapse
+from .object_detector_retinanet.keras_retinanet.utils.image import read_image_bgr
+from .object_detector_retinanet.utils import root_dir
 
 
 class Params:
