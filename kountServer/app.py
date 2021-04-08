@@ -7,6 +7,7 @@ from flask import jsonify
 from werkzeug.utils import secure_filename
 #from .egg_kounter import startCountEggs
 from eggKounter import startCountEggs
+from eggKounter import MyGlobals
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -127,6 +128,7 @@ keras.backend.tensorflow_backend.set_session(get_session())
 
 model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
 model = models.load_model(model_path, backbone_name='resnet50')
+MyGlobals.model = model
 print("loaded model")
 
 socketio = SocketIO(app)
