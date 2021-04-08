@@ -26,13 +26,7 @@ from tensorflow.python.keras.backend import get_session
 import keras
 
 # set tf backend to allow memory to grow, instead of claiming everything
-import tensorflow as tf
 
-
-def get_session():
-    config = tf.compat.v1.ConfigProto()
-    config.gpu_options.allow_growth = True
-    return tf.compat.v1.Session(config=config)
 
 
 def distance(x1, y1, x2, y2):
@@ -42,18 +36,8 @@ def distance(x1, y1, x2, y2):
 
 # model.summary()
 
-def startCountEggs(filePath, fileName):
-  tf.disable_resource_variables()
-  get_session()
+def startCountEggs(filePath, fileName, model):
 
-  # use this environment flag to change which GPU to use
-  #os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-  # set the modified tf session as backend in keras
-  keras.backend.tensorflow_backend.set_session(get_session())
-
-  model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
-  model = models.load_model(model_path, backbone_name='resnet50')
-  print("loaded model")
 
   image_path = filePath 
   # load image
