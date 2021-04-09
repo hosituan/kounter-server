@@ -81,6 +81,7 @@ def allowed_file(filename):
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
+    print("checking...")
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -89,12 +90,14 @@ def upload_file():
               message="No file",
             )
         file = request.files['file']
+        print("got file")
         if file.filename == '':
               return jsonify(
               success=False,
               message="File name is blank",
             )
         if file and allowed_file(file.filename):
+            print("allowed file")
             filename = secure_filename(file.filename)
             file.save(os.path.join(UPLOAD_FOLDER, filename))
             return jsonify(
@@ -121,6 +124,7 @@ def count():
       url = upload_diary(result_file)
       return jsonify(
         success=True,
+        message="Counted",
         fileName=filename,
         url=url,
         count=count_value
