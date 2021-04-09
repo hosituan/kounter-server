@@ -122,8 +122,10 @@ def startCountEggs(filePath, fileName):
             x = int((b[0] + b[2]) / 2)
             y = int((b[1] + b[3]) / 2)
             radius = int(distance(b[0],b[1], b[2], b[3]) / 2  * 0.6)
-            cv2.circle(draw, (x,y), radius, (0, 255, 0), 2) #draw circle
-            cv2.putText(draw, text, (x,y),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1) # Put text
+            size = int(radius / 20)
+            cv2.circle(draw, (x,y), radius, (0, 255, 0), size) #draw circle
+            cv2.putText(draw, str(count_temp), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), size)
+            cv2.putText(draw, str(round(score, 2)), (x + 2 * size ,y),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), size) # Put text
             # draw_box(draw, b, color=color)
             
             # caption = str(round(score,2))
