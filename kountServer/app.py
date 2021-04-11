@@ -125,6 +125,7 @@ def count():
       return jsonify(
         success=True,
         message="Counted",
+        name = "Chicken Egg",
         fileName=filename,
         url=url,
         count=count_value
