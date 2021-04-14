@@ -6,7 +6,7 @@ from flask import Flask, flash, request, redirect, url_for, send_from_directory,
 from werkzeug.utils import secure_filename
 #from .egg_kounter import startCountEggs
 from eggKounter import startCountEggs
-from kountServer import startCountWood
+from woodKounter import startCountWood
 from globalModel import GlobalModel
 import cloudinary
 import cloudinary.uploader
