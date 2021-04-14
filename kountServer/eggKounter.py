@@ -54,7 +54,7 @@ def startCountEggs(filePath, fileName, showConfidence):
 
     # preprocess image for network
     image = preprocess_image(image)
-    image, scale = resize_image(image)
+    #image, scale = resize_image(image)
 
     # Run inference
     with graph.as_default():
@@ -67,7 +67,7 @@ def startCountEggs(filePath, fileName, showConfidence):
         soft_scores = hard_score_rate * hard_scores + (1 - hard_score_rate) * soft_scores
 
         # correct boxes for image scale
-        boxes /= scale
+        #boxes /= scale
 
         # select indices which have a score above the threshold
         indices = np.where(hard_scores[0, :] > threshold)[0]
