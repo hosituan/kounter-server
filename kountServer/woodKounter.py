@@ -30,7 +30,7 @@ graph = tf.get_default_graph()
 def distance(x1, y1, x2, y2):
     return math.sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0)
 
-def startCountWood(filePath, fileName):
+def startCountWood(filePath, fileName, showConfidence):
     image_path = filePath 
     # load image
     #image = read_image_bgr(image_path)
@@ -126,7 +126,8 @@ def startCountWood(filePath, fileName):
             size = int(radius / 20)
             cv2.circle(draw, (x,y), radius, (0, 255, 0), size) #draw circle
             cv2.putText(draw, str(count_temp), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), size)
-            cv2.putText(draw, str(round(score, 2)), (x - 5,y + 10 * size),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2) # Put text
+            if showConfidence:
+              cv2.putText(draw, str(round(score, 2)), (x - 5,y + 10 * size),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2) # Put text
             # draw_box(draw, b, color=color)
             
             # caption = str(round(score,2))

@@ -118,7 +118,10 @@ def count():
     if request.form.get("name") == "Chicken Egg":
       filename = str(request.form.get("imageName"))
       print("Start counting")
-      startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
+      showConfidence = False
+      if int(request.form.get("showConfidence")) == 0:
+        showConfidence = True
+      startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
       result_file = str(filename + "_result.jpg")            
       read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
       count_value = read_dictionary[filename]
@@ -134,7 +137,10 @@ def count():
     elif request.form.get("name") == "Fire Wood":
       filename = str(request.form.get("imageName"))
       print("Start counting")
-      startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename)
+      showConfidence = False
+      if int(request.form.get("showConfidence")) == 0:
+        showConfidence = True
+      startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
       result_file = str(filename + "_result.jpg")            
       read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
       count_value = read_dictionary[filename]
