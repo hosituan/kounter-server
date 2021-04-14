@@ -31,12 +31,20 @@ def save_response_content(response, destination):
                 f.write(chunk)
 
 def main():
-    file_id = '129sQfXjY4doJmMcY1a-ZBRGEzJneuqNR'
-    model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
-    if os.path.isfile(model_path):
-        print ("Model exist")
+    egg_file_id = '129sQfXjY4doJmMcY1a-ZBRGEzJneuqNR'
+    egg_model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
+    if os.path.isfile(egg_model_path):
+        print ("egg Model exist")
     else:
-        print("Downloading model...")
-        download_file_from_google_drive(file_id, model_path)
+        print("Downloading egg model...")
+        download_file_from_google_drive(egg_file_id, egg_model_path)
+
+    wood_file_id = '11NZf3kDjSX6xPkWLMRaLnG2U1yKSDRv7'
+    wood_model_path = os.path.join('object_detector_retinanet','weights', 'woodCounter_model.h5')
+    if os.path.isfile(wood_model_path):
+        print ("wood Model exist")
+    else:
+        print("Downloading wood model...")
+        download_file_from_google_drive(wood_file_id, wood_model_path)
     
     

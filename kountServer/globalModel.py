@@ -1,3 +1,4 @@
 
 class GlobalModel(object):
-    model = object
+    eggModel = object
+    woodModel = object
