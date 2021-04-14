@@ -58,7 +58,7 @@ def startCountEggs(filePath, fileName):
 
     # Run inference
     with graph.as_default():
-        boxes, hard_scores, labels, soft_scores = GlobalModel.model.predict_on_batch(np.expand_dims(image, axis=0))
+        boxes, hard_scores, labels, soft_scores = GlobalModel.eggModel.predict_on_batch(np.expand_dims(image, axis=0))
 
         hard_score_rate=.3
         max_detections = 9999

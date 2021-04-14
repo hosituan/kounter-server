@@ -6,6 +6,7 @@ from flask import Flask, flash, request, redirect, url_for, send_from_directory,
 from werkzeug.utils import secure_filename
 #from .egg_kounter import startCountEggs
 from eggKounter import startCountEggs
+from kountServer import startCountWood
 from globalModel import GlobalModel
 import cloudinary
 import cloudinary.uploader
@@ -133,7 +134,7 @@ def count():
     elif request.form.get("name") == "Fire Wood":
       filename = str(request.form.get("imageName"))
       print("Start counting")
-      startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename)
+      startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename)
       result_file = str(filename + "_result.jpg")            
       read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
       count_value = read_dictionary[filename]
@@ -173,7 +174,7 @@ wood_model_path = os.path.join('object_detector_retinanet','weights', 'woodCount
 GlobalModel.woodModel = models.load_model(wood_model_path, backbone_name='resnet50')
 
 # model.summary()
-print("loaded model")
+print("loaded all model")
 # socketio = SocketIO(app)
 
 # if __name__ == "__main__":
