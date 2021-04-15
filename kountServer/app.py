@@ -139,6 +139,10 @@ def count():
       file.save(os.path.join(UPLOAD_FOLDER, filename))
       if request.form.get("name") == "Chicken Egg":
         print("Start counting")
+        socketio.emit('countResult', {
+          'success': True,
+          'message': 'Start counting'
+        })
         result = startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, False, getBox = True)           
         return jsonify(
           success=True,
