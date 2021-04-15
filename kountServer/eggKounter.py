@@ -120,7 +120,7 @@ def startCountEggs(filePath, fileName, showConfidence = False, getBox = False):
                 dict_result["x"] = int((b[0] + b[2]) / 2)
                 dict_result["y"] = int((b[1] + b[3]) / 2)
                 dict_result["radius"] = int(distance(b[0],b[1], b[2], b[3]) / 2  * 0.6)
-                dict_result["score"] = str(round(score, 2))
+                dict_result["score"] = round(score, 2)
                 dict_res.append(dict_result)
             return dict_res
 

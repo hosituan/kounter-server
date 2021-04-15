@@ -30,7 +30,7 @@ graph = tf.get_default_graph()
 def distance(x1, y1, x2, y2):
     return math.sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0)
 
-def startCountWood(filePath, fileName, showConfidence = False):
+def startCountWood(filePath, fileName, showConfidence = False, getBox = False):
     image_path = filePath 
     # load image
     #image = read_image_bgr(image_path)
@@ -111,6 +111,20 @@ def startCountWood(filePath, fileName, showConfidence = False):
         print(len(filtered_boxes))
         count = len(filtered_boxes)  
         count_temp = 0
+        dict_res = []
+        if getBox:
+            for box, score, label in zip(filtered_boxes, filtered_scores, filtered_labels):
+                if score < threshold:
+                    break
+                b = box.astype(int)
+                dict_result = {}
+                dict_result["x"] = int((b[0] + b[2]) / 2)
+                dict_result["y"] = int((b[1] + b[3]) / 2)
+                dict_result["radius"] = int(distance(b[0],b[1], b[2], b[3]) / 2  * 0.6)
+                dict_result["score"] = str(round(score, 2))
+                dict_res.append(dict_result)
+            return dict_res
+
         for box, score, label in zip(filtered_boxes, filtered_scores, filtered_labels):
             # scores are sorted so we can break
             if score < threshold:

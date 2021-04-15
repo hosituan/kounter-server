@@ -114,7 +114,7 @@ def upload_file():
         )
     return "This is GET method"
 
-@app.route('/countStep', methods=['GET', 'POST'])
+@app.route('/countWithBox', methods=['GET', 'POST'])
 def count():
   if request.method == 'POST':
     if 'file' not in request.files:
@@ -139,7 +139,7 @@ def count():
       file.save(os.path.join(UPLOAD_FOLDER, filename))
       if request.form.get("name") == "Chicken Egg":
         print("Start counting")
-        result = startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, True)           
+        result = startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, False, getBox = True)           
         return jsonify(
           success=True,
           message="Counted",
@@ -149,18 +149,13 @@ def count():
         )
       elif request.form.get("name") == "Fire Wood":
         print("Start counting")
-        startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename)
-        result_file = str(filename + "_result.jpg")            
-        read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
-        count_value = read_dictionary[filename]
-        url = upload_diary(result_file)
+        result = startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence= False, getBox= True)
         return jsonify(
           success=True,
           message="Counted",
           name = "Fire Wood",
           fileName=filename,
-          url=url,
-          count=count_value
+          result = result
         )
       return jsonify(
                   success=False,
