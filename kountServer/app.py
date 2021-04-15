@@ -176,6 +176,10 @@ def countStep():
             )
     file = request.files['file']
     print("got file")
+    sendEmit({
+    'success': True,
+    'message': 'Start uploading'
+  })
     if file.filename == '':
           return jsonify(
           success=False,
@@ -201,10 +205,6 @@ def countStep():
           read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
           count_value = read_dictionary[filename]
           print("uploading")
-          emit("countResult", {
-            'success': True,
-            'message': 'Start uploading'
-          })
           url = upload_diary(result_file)
           return jsonify(
             success=True,
@@ -242,7 +242,9 @@ def countStep():
       success=False,
       message="Only accept PNG, JPG, JPEG extension"
     )
-
+@socketio.on('countResult', namespace='/countStep')
+def sendEmit(message):
+  emit("countResult", message)
 
 def get_session():
     config = tf.compat.v1.ConfigProto()
