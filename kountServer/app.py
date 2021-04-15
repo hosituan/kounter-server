@@ -15,7 +15,7 @@ import pickle
 import os, shutil
 from flask_socketio import SocketIO, emit
 import downloadModel
-import thread
+import _thread
 
 import tensorflow as tf
 import keras
@@ -76,8 +76,8 @@ def upload_diary(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 @socketio.on('listen')
-def test_message(message):
-  emit({'a':'b'})
+def hello():
+   emit('hello',  {'data':'Lets dance'})
 def welcome():
   return "Hello From Ho Si Tuan - My Kounter"
 
@@ -190,4 +190,4 @@ print("loaded all model")
 
 
 if __name__ == "__main__":
-  socketio.run(app, host='0.0.0.0', port=80, debug=False,use_reloader=False, ssl_context='adhoc', async_mode='eventlet')
+  socketio.run(app, host='0.0.0.0', port=80, debug=False,use_reloader=False)
