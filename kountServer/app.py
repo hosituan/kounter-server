@@ -125,6 +125,7 @@ def count():
       result_file = str(filename + "_result.jpg")            
       read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
       count_value = read_dictionary[filename]
+      print("uploading")
       url = upload_diary(result_file)
       return jsonify(
         success=True,
