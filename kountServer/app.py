@@ -176,10 +176,11 @@ def countStep():
             )
     file = request.files['file']
     print("got file")
-    sendEmit({
-    'success': True,
-    'message': 'Start uploading'
-  })
+    socketio.emit('countResult', {
+      'success': True,
+      'message': 'Got file'
+    })
+    
     if file.filename == '':
           return jsonify(
           success=False,
@@ -189,11 +190,10 @@ def countStep():
         print("allowed file")
         filename = secure_filename(file.filename)
         file.save(os.path.join(UPLOAD_FOLDER, filename))
-
         #For egg
         if request.form.get("name") == "Chicken Egg":
           print("Start counting")
-          emit("countResult", {
+          socketio.emit('countResult', {
             'success': "True",
             'message': 'Start counting'
           })
@@ -242,9 +242,6 @@ def countStep():
       success=False,
       message="Only accept PNG, JPG, JPEG extension"
     )
-@socketio.on('countResult', namespace='/countStep')
-def sendEmit(message):
-  emit("countResult", message)
 
 def get_session():
     config = tf.compat.v1.ConfigProto()
