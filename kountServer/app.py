@@ -75,9 +75,6 @@ def upload_diary(filename):
   return respone['secure_url']
 
 @app.route('/', methods=['GET', 'POST'])
-@socketio.on('listen')
-def hello():
-   emit('hello',  {'data':'Lets dance'})
 def welcome():
   return "Hello From Ho Si Tuan - My Kounter"
 
@@ -120,6 +117,131 @@ def upload_file():
 @app.route('/count', methods=['GET', 'POST'])
 def count():
   if request.method == 'POST':
+    if request.form.get("name") == "Chicken Egg":
+      filename = str(request.form.get("imageName"))
+      print("Start counting")
+      showConfidence = False
+      if int(request.form.get("showConfidence")) == 0:
+        showConfidence = True
+      startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
+      result_file = str(filename + "_result.jpg")            
+      read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
+      count_value = read_dictionary[filename]
+      print("uploading")
+      url = upload_diary(result_file)
+      return jsonify(
+        success=True,
+        message="Counted",
+        name = "Chicken Egg",
+        fileName=filename,
+        url=url,
+        count=count_value
+      )
+    elif request.form.get("name") == "Fire Wood":
+      filename = str(request.form.get("imageName"))
+      print("Start counting")
+      showConfidence = False
+      if int(request.form.get("showConfidence")) == 0:
+        showConfidence = True
+      startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
+      result_file = str(filename + "_result.jpg")            
+      read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
+      count_value = read_dictionary[filename]
+      url = upload_diary(result_file)
+      return jsonify(
+        success=True,
+        message="Counted",
+        name = "Fire Wood",
+        fileName=filename,
+        url=url,
+        count=count_value
+      )
+    return jsonify(
+                success=False,
+                message="We can't count this type!"
+              )
+  return jsonify(
+                success=False,
+                message="This is GET method"
+              )
+              
+
+@app.route('/countStep', methods=['GET', 'POST'])
+def count():
+  if request.method == 'POST':
+    if 'file' not in request.files:
+            return jsonify(
+              success=False,
+              message="No file",
+            )
+    file = request.files['file']
+    print("got file")
+    if file.filename == '':
+          return jsonify(
+          success=False,
+          message="File name is blank",
+        )
+    if file and allowed_file(file.filename):
+        print("allowed file")
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(UPLOAD_FOLDER, filename))
+
+        #For egg
+        if request.form.get("name") == "Chicken Egg":
+          print("Start counting")
+          emit("countResult", {
+            'success': True,
+            'message': 'Start counting'
+          })
+          showConfidence = False
+          if int(request.form.get("showConfidence")) == 0:
+            showConfidence = True
+          startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
+          result_file = str(filename + "_result.jpg")            
+          read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
+          count_value = read_dictionary[filename]
+          print("uploading")
+          emit("countResult", {
+            'success': True,
+            'message': 'Start uploading'
+          })
+          url = upload_diary(result_file)
+          return jsonify(
+            success=True,
+            message="Counted",
+            name = "Chicken Egg",
+            fileName=filename,
+            url=url,
+            count=count_value
+          )
+
+        #For wood
+        elif request.form.get("name") == "Fire Wood":
+          print("Start counting")
+          showConfidence = False
+          if int(request.form.get("showConfidence")) == 0:
+            showConfidence = True
+          startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
+          result_file = str(filename + "_result.jpg")            
+          read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
+          count_value = read_dictionary[filename]
+          url = upload_diary(result_file)
+          return jsonify(
+            success=True,
+            message="Counted",
+            name = "Fire Wood",
+            fileName=filename,
+            url=url,
+            count=count_value
+          )
+        return jsonify(
+            success=False,
+            message="We can't count this type!"
+          )
+    return jsonify(
+      success=False,
+      message="Only accept PNG, JPG, JPEG extension"
+    )
     if request.form.get("name") == "Chicken Egg":
       filename = str(request.form.get("imageName"))
       print("Start counting")
