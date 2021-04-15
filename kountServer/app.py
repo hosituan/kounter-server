@@ -15,7 +15,7 @@ import pickle
 import os, shutil
 from flask_socketio import SocketIO, emit
 import downloadModel
-
+import thread
 
 import tensorflow as tf
 import keras
@@ -24,6 +24,8 @@ from tensorflow.python.keras.backend import get_session
 
 UPLOAD_FOLDER = 'uploads/'
 app = Flask(__name__)
+socketio = SocketIO(app)
+
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
@@ -73,6 +75,9 @@ def upload_diary(filename):
   return respone['secure_url']
 
 @app.route('/', methods=['GET', 'POST'])
+@socketio.on('listen')
+def test_message(message):
+  emit({'a':'b'})
 def welcome():
   return "Hello From Ho Si Tuan - My Kounter"
 
@@ -169,7 +174,7 @@ def get_session():
     config.gpu_options.allow_growth = True
     return tf.compat.v1.Session(config=config)
 
-downloadModel.main()
+# downloadModel.main()
 tf.disable_resource_variables()
 get_session()
 # set the modified tf session as backend in keras
@@ -182,7 +187,7 @@ GlobalModel.woodModel = models.load_model(wood_model_path, backbone_name='resnet
 
 # model.summary()
 print("loaded all model")
-# socketio = SocketIO(app)
 
-# if __name__ == "__main__":
-#   socketio.run(app, host='0.0.0.0', port=80, debug=False,use_reloader=False)
+
+if __name__ == "__main__":
+  socketio.run(app, host='0.0.0.0', port=80, debug=False,use_reloader=False, ssl_context='adhoc', async_mode='eventlet')
