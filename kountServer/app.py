@@ -194,7 +194,7 @@ def countStep():
         if request.form.get("name") == "Chicken Egg":
           print("Start counting")
           socketio.emit('countResult', {
-            'success': "True",
+            'success': True,
             'message': 'Start counting'
           })
           showConfidence = False
