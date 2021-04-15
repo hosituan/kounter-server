@@ -30,7 +30,7 @@ graph = tf.get_default_graph()
 def distance(x1, y1, x2, y2):
     return math.sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0)
 
-def startCountWood(filePath, fileName, showConfidence):
+def startCountWood(filePath, fileName, showConfidence = False):
     image_path = filePath 
     # load image
     #image = read_image_bgr(image_path)

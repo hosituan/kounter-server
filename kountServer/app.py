@@ -117,43 +117,59 @@ def upload_file():
 @app.route('/countStep', methods=['GET', 'POST'])
 def count():
   if request.method == 'POST':
-    if request.form.get("name") == "Chicken Egg":
-      filename = str(request.form.get("imageName"))
-      print("Start counting")
-      showConfidence = False
-      if int(request.form.get("showConfidence")) == 0:
-        showConfidence = True
-      result = startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence, True)           
+    if 'file' not in request.files:
+        return jsonify(
+          success=False,
+          message="No file",
+        )
+    file = request.files['file']
+    print("got file")
+    socketio.emit('countResult', {
+      'success': True,
+      'message': 'Got file'
+    })
+    
+    if file.filename == '':
+          return jsonify(
+          success=False,
+          message="File name is blank",
+        )
+    if file and allowed_file(file.filename):
+      filename = secure_filename(file.filename)
+      file.save(os.path.join(UPLOAD_FOLDER, filename))
+      if request.form.get("name") == "Chicken Egg":
+        print("Start counting")
+        result = startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, True)           
+        return jsonify(
+          success=True,
+          message="Counted",
+          name = "Chicken Egg",
+          fileName=filename,
+          result = result
+        )
+      elif request.form.get("name") == "Fire Wood":
+        print("Start counting")
+        startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename)
+        result_file = str(filename + "_result.jpg")            
+        read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
+        count_value = read_dictionary[filename]
+        url = upload_diary(result_file)
+        return jsonify(
+          success=True,
+          message="Counted",
+          name = "Fire Wood",
+          fileName=filename,
+          url=url,
+          count=count_value
+        )
       return jsonify(
-        success=True,
-        message="Counted",
-        name = "Chicken Egg",
-        fileName=filename,
-        result = result
-      )
-    elif request.form.get("name") == "Fire Wood":
-      filename = str(request.form.get("imageName"))
-      print("Start counting")
-      showConfidence = False
-      if int(request.form.get("showConfidence")) == 0:
-        showConfidence = True
-      startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
-      result_file = str(filename + "_result.jpg")            
-      read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
-      count_value = read_dictionary[filename]
-      url = upload_diary(result_file)
-      return jsonify(
-        success=True,
-        message="Counted",
-        name = "Fire Wood",
-        fileName=filename,
-        url=url,
-        count=count_value
-      )
+                  success=False,
+                  message="We can't count this type!"
+                )
     return jsonify(
-                success=False,
-                message="We can't count this type!"
-              )
+      success=False,
+      message="Only accept PNG, JPG, JPEG extension"
+    )
   return jsonify(
                 success=False,
                 message="This is GET method"
