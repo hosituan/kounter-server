@@ -167,7 +167,7 @@ def count():
               
 
 @app.route('/countStep', methods=['GET', 'POST'])
-def count():
+def countStep():
   if request.method == 'POST':
     if 'file' not in request.files:
             return jsonify(
