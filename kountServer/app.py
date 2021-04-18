@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 #from .egg_kounter import startCountEggs
 from eggKounter import startCountEggs
 from woodKounter import startCountWood
+from steelKounter import startCountSteel
 from globalModel import GlobalModel
 import cloudinary
 import cloudinary.uploader
@@ -214,6 +215,9 @@ def countStep():
         #For wood
         elif request.form.get("name") == "Fire Wood":
           startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
+        #for steel
+        elif request.form.get("name") == "Steel Pipe":
+          startCountSteel(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
         result_file = str(filename + "_result.jpg")            
         read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
         count_value = read_dictionary[filename]
