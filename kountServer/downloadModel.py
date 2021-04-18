@@ -47,4 +47,11 @@ def main():
         print("Downloading wood model...")
         download_file_from_google_drive(wood_file_id, wood_model_path)
     
+    wood_file_id = '1-kGFubcIFVfgUkhYlrOzRaUW5kq0Fm7x'
+    wood_model_path = os.path.join('object_detector_retinanet','weights', 'steelCounter_model.h5')
+    if os.path.isfile(wood_model_path):
+        print ("steel Model exist")
+    else:
+        print("Downloading steel model...")
+        download_file_from_google_drive(wood_file_id, wood_model_path)
     

@@ -240,7 +240,7 @@ def get_session():
     config.gpu_options.allow_growth = True
     return tf.compat.v1.Session(config=config)
 
-# downloadModel.main()
+downloadModel.main()
 tf.disable_resource_variables()
 get_session()
 # set the modified tf session as backend in keras
@@ -250,6 +250,9 @@ GlobalModel.eggModel = models.load_model(egg_model_path, backbone_name='resnet50
 
 wood_model_path = os.path.join('object_detector_retinanet','weights', 'woodCounter_model.h5')
 GlobalModel.woodModel = models.load_model(wood_model_path, backbone_name='resnet50')
+
+steel_model_path = os.path.join('object_detector_retinanet','weights', 'steelCounter_model.h5')
+GlobalModel.steelModel = models.load_model(steel_model_path, backbone_name='resnet50')
 
 # model.summary()
 print("loaded all model")
