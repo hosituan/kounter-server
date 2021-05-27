@@ -78,8 +78,9 @@ def add_object():
 
 @app.route('/prepare')
 def prepare():
+  print('preparing')
   if request.method == 'POST':
-    objectID = request.form.get('id')
+    objectID = request.arg.get('id')
     objectName = request.form.get('name')
     for obj in objectList:
       if obj.id == objectID:
