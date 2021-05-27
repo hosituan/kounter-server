@@ -9,6 +9,7 @@ from eggKounter import startCountEggs
 from woodKounter import startCountWood
 from steelKounter import startCountSteel
 from globalModel import GlobalModel
+from CountObject import CountObject
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -22,6 +23,7 @@ import tensorflow as tf
 import keras
 from object_detector_retinanet.keras_retinanet import models
 from tensorflow.python.keras.backend import get_session
+import json
 
 UPLOAD_FOLDER = 'uploads/'
 app = Flask(__name__)
@@ -44,6 +46,36 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.route('/add', methods =['GET', 'POST'])
+def add_object():
+  print("Adding")
+  if request.method == 'POST':
+    id = request.form.get('id')
+    name = request.form.get('name')
+    driveID = request.form.get('driveID')
+    imageLink = request.form.get('imageLink')
+    data = {}
+    data['countObject'] = []
+    if os.path.isfile('countObjects.txt'):
+        print ("Object list exist")
+        with open('countObjects.txt') as json_file:
+          data = json.load(json_file)
+    else:
+        print ("Object list not exist")
+    data['countObject'].append({
+        'id': id,
+        'name': name,
+        'driveID': driveID,
+        'imageLink': imageLink
+      })
+    with open('countObjects.txt', 'w') as outfile:
+      json.dump(data, outfile)
+
+  else:
+    return jsonify(
+              success=False,
+              message="This is GET method"
+            )
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     print("checking...")
@@ -74,10 +106,14 @@ def upload_file():
           success=False,
           message="Only accept PNG, JPG, JPEG extension"
         )
-    return "This is GET method"
+    return jsonify(
+                success=False,
+                message="This is GET method"
+              )
 
 @app.route('/count', methods=['GET', 'POST'])
 def count():
+  print("checking...")
   if request.method == 'POST':
     if 'file' not in request.files:
         return jsonify(
@@ -100,7 +136,7 @@ def count():
       filename = secure_filename(file.filename)
       file.save(os.path.join(UPLOAD_FOLDER, filename))
       if request.form.get("name") == "Chicken Egg":
-        print("Start counting")
+        print("Start counting egg")
         socketio.emit('countResult', {
           'success': True,
           'message': 'Start counting'
@@ -114,7 +150,17 @@ def count():
           result = result
         )
       elif request.form.get("name") == "Fire Wood":
-        print("Start counting")
+        print("Start counting wood")
+        result = startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence= False, getBox= True)
+        return jsonify(
+          success=True,
+          message="Counted",
+          name = "Fire Wood",
+          fileName=filename,
+          result = result
+        )
+      elif request.form.ger("name") == "Steel Pipe":
+        print("Start counting steel pipe") 
         result = startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence= False, getBox= True)
         return jsonify(
           success=True,
@@ -141,22 +187,57 @@ def get_session():
     config.gpu_options.allow_growth = True
     return tf.compat.v1.Session(config=config)
 
-downloadModel.main()
+
+def loadObjects():
+    if os.path.isfile('countObjects.txt'):
+        print ("Object list exist")
+        with open('countObjects.txt') as json_file:
+           return json.load(json_file)
+    else:
+        print ("Object list not exist")
+        return False
+
+
+
+# get object list
+objectList = []
+data = loadObjects()
+if data != False:
+  for countObj in data['countObject']:
+    obj = CountObject(countObj['id'], countObj['name'], countObj['driveID'], countObj['imageLink'])
+    objectList.append(obj)
+
+# download model
+downloadModel.main(objectList)
+
+# start tensorflow backend
 tf.disable_resource_variables()
 get_session()
+
 # set the modified tf session as backend in keras
 keras.backend.tensorflow_backend.set_session(get_session())
-egg_model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
-GlobalModel.eggModel = models.load_model(egg_model_path, backbone_name='resnet50')
 
-wood_model_path = os.path.join('object_detector_retinanet','weights', 'woodCounter_model.h5')
-GlobalModel.woodModel = models.load_model(wood_model_path, backbone_name='resnet50')
+# load model
+modelList = []
 
-steel_model_path = os.path.join('object_detector_retinanet','weights', 'steelCounter_model.h5')
-GlobalModel.steelModel = models.load_model(steel_model_path, backbone_name='resnet50')
+for countObj in objectList:
+  objName = countObj.name
+  modelName = objName + '_model.h5'
+  modelPath = os.path.join('object_detector_retinanet','weights', modelName)
+  currentModel = models.load_model(modelPath, backbone_name='resnet50')
+  modelList.append(currentModel)
 
-# model.summary()
-print("loaded all model")
+print("Total model: ", modelList.count)
+print("Loaded all model")
+
+# egg_model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
+# GlobalModel.eggModel = models.load_model(egg_model_path, backbone_name='resnet50')
+
+# wood_model_path = os.path.join('object_detector_retinanet','weights', 'woodCounter_model.h5')
+# GlobalModel.woodModel = models.load_model(wood_model_path, backbone_name='resnet50')
+
+# steel_model_path = os.path.join('object_detector_retinanet','weights', 'steelCounter_model.h5')
+# GlobalModel.steelModel = models.load_model(steel_model_path, backbone_name='resnet50')
 
 
 if __name__ == "__main__":

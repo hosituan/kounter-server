@@ -30,26 +30,15 @@ graph = tf.get_default_graph()
 def distance(x1, y1, x2, y2):
     return math.sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0)
 
-def startCountEggs(filePath, fileName, showConfidence = False, getBox = False):
+def startCountEggs(model, filePath, fileName, showConfidence = False):
     image_path = filePath 
-    # load image
-    #image = read_image_bgr(image_path)
     image = cv2.imread(image_path)
-    #resize image
-    #   if image.shape[0] > 500 or image.shape[1] > 500:
-    #     ratio = 500 / image.shape[0]
-    #     width = int(image.shape[1] *  ratio)
-    #     height = 500
-    #     # resize image
-    #     dim = (width, height)
-    #     image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
 
     # for filtering predictions based on score (objectness/confidence)
     threshold = 0.3
 
     # copy to draw on
     draw = image.copy()
-    # draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
 
 
     # preprocess image for network
@@ -111,52 +100,19 @@ def startCountEggs(filePath, fileName, showConfidence = False, getBox = False):
         count = len(filtered_boxes)  
         count_temp = 0
         dict_res = []
-        if getBox:
-            for box, score, label in zip(filtered_boxes, filtered_scores, filtered_labels):
-                if score < threshold:
-                    break
-                b = box.astype(int)
-                dict_result = {}
-
-                dict_result['x'] = int(b[0])
-                dict_result['y'] = int(b[1])
-
-                height = distance(b[0], b[1], b[0], b[3]) # (x1, y1) (x1, y2)
-                width = distance(b[0], b[1], b[2], b[1])  
-                dict_result['height'] = int(height)
-                dict_result['width'] = int(width)
-                dict_result["score"] = round(score, 2)
-                dict_res.append(dict_result)
-            return dict_res
-
         for box, score, label in zip(filtered_boxes, filtered_scores, filtered_labels):
-            # scores are sorted so we can break
             if score < threshold:
                 break
-            count_temp += 1
-            text = str(count_temp) + " - " + str(round(score,2))
-            color = [255, 0, 0]#label_color(label) ## BUG HERE LABELS ARE FLOATS SO COLOR IS HARDCODED 
-            
             b = box.astype(int)
-            x = int((b[0] + b[2]) / 2)
-            y = int((b[1] + b[3]) / 2)
-            radius = int(distance(b[0],b[1], b[2], b[3]) / 2  * 0.6)
-            size = int(radius / 20)
-            cv2.circle(draw, (x,y), radius, (0, 255, 0), size) #draw circle
-            cv2.putText(draw, str(count_temp), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), size)
-            if showConfidence:
-                cv2.putText(draw, str(round(score, 2)), (x - 5,y + 10 * size),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2) # Put text
-            # draw_box(draw, b, color=color)
-            
-            # caption = str(round(score,2))
-            # draw_caption(draw, b, caption)
-        APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-        OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
-        cv2.imwrite(os.path.join(OUTPUT_FOLDER, fileName +'_result.jpg'), draw)
-        dictionary = {fileName:count}
-        np.save(os.path.join(OUTPUT_FOLDER, fileName +'_result.npy'), dictionary) 
+            dict_result = {}
+            dict_result['x'] = int(b[0])
+            dict_result['y'] = int(b[1])
 
-        # plt.axis('off')
-        # plt.imshow(draw)
-        # plt.show()    
+            height = distance(b[0], b[1], b[0], b[3]) # (x1, y1) (x1, y2)
+            width = distance(b[0], b[1], b[2], b[1])  
+            dict_result['height'] = int(height)
+            dict_result['width'] = int(width)
+            dict_result["score"] = round(score, 2)
+            dict_res.append(dict_result)
+        return dict_res  
 
