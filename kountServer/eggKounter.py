@@ -121,8 +121,8 @@ def startCountEggs(filePath, fileName, showConfidence = False, getBox = False):
                 dict_result['x'] = int(b[0])
                 dict_result['y'] = int(b[1])
 
-                height = distance(b[0], b[1], b[0], b[3])
-                width = distance(b[0], b[1], b[3], b[1])
+                height = distance(b[0], b[1], b[0], b[3]) # (x1, y1) (x1, y2)
+                width = distance(b[0], b[1], b[2], b[1])  
                 dict_result['height'] = int(height)
                 dict_result['width'] = int(width)
                 dict_result["score"] = round(score, 2)
