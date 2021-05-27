@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from eggKounter import startCountEggs
 from woodKounter import startCountWood
 from steelKounter import startCountSteel
+from kountObject import startCount
 from globalModel import GlobalModel
 from CountObject import CountObject
 import cloudinary
@@ -52,8 +53,7 @@ def add_object():
   if request.method == 'POST':
     id = request.form.get('id')
     name = request.form.get('name')
-    driveID = request.form.get('driveID')
-    imageLink = request.form.get('imageLink')
+    driveID = request.form.get('driveID')    
     data = {}
     data['countObject'] = []
     if os.path.isfile('countObjects.txt'):
@@ -65,14 +65,37 @@ def add_object():
     data['countObject'].append({
         'id': id,
         'name': name,
-        'driveID': driveID,
-        'imageLink': imageLink
+        'driveID': driveID
       })
     with open('countObjects.txt', 'w') as outfile:
       json.dump(data, outfile)
 
   else:
     return jsonify(
+              success=False,
+              message="This is GET method"
+            )
+
+@app.route('/prepare')
+def prepare():
+  if request.method == 'POST':
+    objectID = request.form.get('id')
+    objectName = request.form.get('name')
+    for obj in objectList:
+      if obj.id == objectID:
+        objName = obj.name
+        modelName = objName + '_model.h5'
+        modelPath = os.path.join('object_detector_retinanet','weights', modelName)
+        GlobalModel.model = models.load_model(modelPath, backbone_name='resnet50')
+        return jsonify(
+              success=True,
+              message="Prepared model"
+            )
+    return jsonify(
+      success=True,
+      message="We can't count this object"
+    )
+  return jsonify(
               success=False,
               message="This is GET method"
             )
@@ -204,7 +227,7 @@ objectList = []
 data = loadObjects()
 if data != False:
   for countObj in data['countObject']:
-    obj = CountObject(countObj['id'], countObj['name'], countObj['driveID'], countObj['imageLink'])
+    obj = CountObject(countObj['id'], countObj['name'], countObj['driveID'])
     objectList.append(obj)
 
 # download model
@@ -216,19 +239,6 @@ get_session()
 
 # set the modified tf session as backend in keras
 keras.backend.tensorflow_backend.set_session(get_session())
-
-# load model
-modelList = []
-
-for countObj in objectList:
-  objName = countObj.name
-  modelName = objName + '_model.h5'
-  modelPath = os.path.join('object_detector_retinanet','weights', modelName)
-  currentModel = models.load_model(modelPath, backbone_name='resnet50')
-  modelList.append(currentModel)
-
-print("Total model: ", modelList.count)
-print("Loaded all model")
 
 # egg_model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
 # GlobalModel.eggModel = models.load_model(egg_model_path, backbone_name='resnet50')

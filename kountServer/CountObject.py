@@ -1,6 +1,5 @@
 class CountObject:
-  def __init__(self, id, name, driveID, link):
+  def __init__(self, id, name, driveID):
     self.id = id
     self.name = name
     self.driveID = driveID
-    self.link = link
