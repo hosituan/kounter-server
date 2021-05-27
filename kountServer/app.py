@@ -36,45 +36,6 @@ app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-
-cloudinary.config(
-  cloud_name = 'dggbuxa59',  
-  api_key = '651855936159331',  
-  api_secret = 'YZcmgha2qUntVE_QrxeCThMLJEM'  
-)
-
-
-
-#clean after upload
-def clean():
-  for file_name in os.listdir(OUTPUT_FOLDER):
-    file_path = os.path.join(OUTPUT_FOLDER, file_name)
-    try:
-        if os.path.isfile(file_path) or os.path.islink(file_path):
-            os.unlink(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-    except Exception as e:
-        print('Failed to delete %s. Reason: %s' % (file_path, e))
-  for file_name in os.listdir(UPLOAD_FOLDER):
-    file_path = os.path.join(UPLOAD_FOLDER, file_name)
-    try:
-        if os.path.isfile(file_path) or os.path.islink(file_path):
-            os.unlink(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-    except Exception as e:
-        print('Failed to delete %s. Reason: %s' % (file_path, e))
-
-
-
-def upload_diary(filename):
-  os.chdir(OUTPUT_FOLDER)
-  respone = cloudinary.uploader.upload(filename, folder = "kount_result")
-  os.chdir("..")
-  clean()
-  return respone['secure_url']
-
 @app.route('/', methods=['GET', 'POST'])
 def welcome():
   return "Hello From Ho Si Tuan - My Kounter"
@@ -115,7 +76,7 @@ def upload_file():
         )
     return "This is GET method"
 
-@app.route('/countWithBox', methods=['GET', 'POST'])
+@app.route('/count', methods=['GET', 'POST'])
 def count():
   if request.method == 'POST':
     if 'file' not in request.files:
@@ -174,70 +135,6 @@ def count():
                 success=False,
                 message="This is GET method"
               )
-              
-
-@app.route('/count', methods=['GET', 'POST'])
-def countStep():
-  if request.method == 'POST':
-    if 'file' not in request.files:
-            return jsonify(
-              success=False,
-              message="No file",
-            )
-    file = request.files['file']
-    print("got file")
-    socketio.emit('countResult', {
-      'success': True,
-      'message': 'Got file'
-    })
-    
-    if file.filename == '':
-          return jsonify(
-          success=False,
-          message="File name is blank",
-        )
-    if file and allowed_file(file.filename):
-        print("allowed file")
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(UPLOAD_FOLDER, filename))
-        print("Start counting")
-        socketio.emit('countResult', {
-          'success': True,
-          'message': 'Start counting'
-        })
-        showConfidence = False
-        if int(request.form.get("showConfidence")) == 0:
-          showConfidence = True
-
-        #For egg
-        if request.form.get("name") == "Chicken Egg":
-          startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
-        #For wood
-        elif request.form.get("name") == "Fire Wood":
-          startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
-        #for steel
-        elif request.form.get("name") == "Steel Pipe":
-          startCountSteel(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence)
-        result_file = str(filename + "_result.jpg")            
-        read_dictionary = np.load(os.path.join(OUTPUT_FOLDER, filename+'_result.npy'),allow_pickle='TRUE').item()
-        count_value = read_dictionary[filename]
-        url = upload_diary(result_file)
-        return jsonify(
-          success=True,
-          message="Counted",
-          name = request.form.get("name"),
-          fileName=filename,
-          url=url,
-          count=count_value
-        )
-        return jsonify(
-            success=False,
-            message="We can't count this type!"
-          )
-    return jsonify(
-      success=False,
-      message="Only accept PNG, JPG, JPEG extension"
-    )
 
 def get_session():
     config = tf.compat.v1.ConfigProto()
