@@ -96,12 +96,12 @@ def add_object():
               success=False,
               message="This is GET method"
             )
-            
+
 @app.route('/prepare', methods = ['GET', 'POST'])
 def prepare():
   if request.method == 'POST':
     print('preparing')
-    objectID = request.arg.get('id')    
+    objectID = request.args.get('id')    
     for obj in objectList:
       if obj.id == objectID:
         objName = obj.name
