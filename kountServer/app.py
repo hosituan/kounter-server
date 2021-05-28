@@ -81,6 +81,8 @@ def add_object():
         print ("Object list exist")
         with open('countObjects.txt') as json_file:
           data = json.load(json_file)
+          for o in data:
+            print(o)
     else:
         print ("Object list not exist")
     data['countObject'].append({
@@ -110,6 +112,7 @@ def prepare():
         modelName = objName + '_model.h5'
         modelPath = os.path.join('object_detector_retinanet','weights', modelName)
         GlobalModel.model = models.load_model(modelPath, backbone_name='resnet50')
+        print("Loaded model")
         return jsonify(
               success=True,
               message="Prepared model"
