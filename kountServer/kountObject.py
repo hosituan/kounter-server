@@ -47,7 +47,6 @@ def startCount(filePath):
         hard_score_rate=.3
         max_detections = 9999
         print(soft_scores.shape)
-        soft_scores = np.squeeze(soft_scores, axis= 2)
         soft_scores = hard_score_rate * hard_scores + (1 - hard_score_rate) * soft_scores
 
         # correct boxes for image scale
