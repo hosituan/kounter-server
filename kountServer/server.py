@@ -164,6 +164,7 @@ def prepare():
     downloadModel.main(objectList)
     print('Downloaded all models')
     objectID = request.form.get('id')
+    GlobalModel.graph = object
     for obj in objectList:
       print("Object ID: " + obj.id)
       print("Object Name: " +obj.name)
