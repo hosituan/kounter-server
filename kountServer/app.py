@@ -96,8 +96,8 @@ def add_object():
               success=False,
               message="This is GET method"
             )
-
-@app.route('/prepare')
+            
+@app.route('/prepare', methods = ['GET', 'POST'])
 def prepare():
   if request.method == 'POST':
     print('preparing')
