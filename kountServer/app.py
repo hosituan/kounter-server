@@ -121,13 +121,8 @@ def prepare():
         objName = obj.name
         modelName = objName + '_model.h5'
         modelPath = os.path.join('object_detector_retinanet','weights', modelName)
-        GlobalModel.model = models.load_model(modelPath, backbone_name='resnet50')
-        
         # start tensorflow backend
-        tf.disable_resource_variables()
-        get_session()
-        # set the modified tf session as backend in keras
-        keras.backend.tensorflow_backend.set_session(get_session())
+        GlobalModel.model = models.load_model(modelPath, backbone_name='resnet50')
         print("Loaded model")
         return jsonify(
               success=True,
@@ -247,7 +242,10 @@ objectList = []
 loadObjects()
 # download model
 downloadModel.main(objectList)
-
+tf.disable_resource_variables()
+get_session()
+# set the modified tf session as backend in keras
+keras.backend.tensorflow_backend.set_session(get_session())
 # egg_model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
 # GlobalModel.eggModel = models.load_model(egg_model_path, backbone_name='resnet50')
 # wood_model_path = os.path.join('object_detector_retinanet','weights', 'woodCounter_model.h5')
