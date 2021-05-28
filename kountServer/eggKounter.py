@@ -25,7 +25,7 @@ from globalModel import GlobalModel
 from tensorflow.python.keras.backend import get_session
 import keras
 import tensorflow as tf
-graph = tf.get_default_graph()
+
 
 def distance(x1, y1, x2, y2):
     return math.sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0)
@@ -46,7 +46,7 @@ def startCountEggs(model, filePath, fileName, showConfidence = False):
     #image, scale = resize_image(image)
 
     # Run inference
-    with graph.as_default():
+    with GlobalModel.graph.as_default():
         boxes, hard_scores, labels, soft_scores = GlobalModel.eggModel.predict_on_batch(np.expand_dims(image, axis=0))
 
         hard_score_rate=.3

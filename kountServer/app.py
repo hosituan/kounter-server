@@ -30,7 +30,6 @@ UPLOAD_FOLDER = 'uploads/'
 app = Flask(__name__)
 socketio = SocketIO(app)
 
-
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
 OUTPUT_FOLDER = os.path.join(APP_ROOT, 'output/')
@@ -127,6 +126,7 @@ def prepare():
         # set the modified tf session as backend in keras
         keras.backend.tensorflow_backend.set_session(get_session())
         GlobalModel.model = models.load_model(modelPath, backbone_name='resnet50')
+        GlobalModel.graph = tf.get_default_graph()
         print("Loaded model")
         return jsonify(
               success=True,
