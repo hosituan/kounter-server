@@ -113,8 +113,10 @@ def prepare():
     print('preparing')
     downloadModel.main(objectList)
     print('downloaded all model')
+    loadObjects()
     objectID = request.form.get('id')
     for obj in objectList:
+      print(obj.id)
       if obj.id == objectID:
         objName = obj.name
         modelName = objName + '_model.h5'
@@ -130,10 +132,6 @@ def prepare():
               success=True,
               message="Prepared model"
             )
-    return jsonify(
-      success=True,
-      message="We can't count this object"
-    )
   return jsonify(
               success=False,
               message="This is GET method"
@@ -233,20 +231,19 @@ def loadObjects():
     if os.path.isfile('countObjects.txt'):
         print ("Object list exist")
         with open('countObjects.txt') as json_file:
-           return json.load(json_file)
+          data = json.load(json_file)
+          for countObj in data['countObject']:
+            obj = CountObject(countObj['id'], countObj['name'], countObj['driveID'])
+            objectList.append(obj)
+          print ("Loaded")
     else:
         print ("Object list not exist")
-        return False
 
 
 
 # get object list
 objectList = []
-data = loadObjects()
-if data != False:
-  for countObj in data['countObject']:
-    obj = CountObject(countObj['id'], countObj['name'], countObj['driveID'])
-    objectList.append(obj)
+loadObjects()
 
 # download model
 downloadModel.main(objectList)
