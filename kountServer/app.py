@@ -47,6 +47,27 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+#clean after upload
+def clean():
+  for file_name in os.listdir(OUTPUT_FOLDER):
+    file_path = os.path.join(OUTPUT_FOLDER, file_name)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (file_path, e))
+  for file_name in os.listdir(UPLOAD_FOLDER):
+    file_path = os.path.join(UPLOAD_FOLDER, file_name)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (file_path, e))
+
 @app.route('/add', methods =['GET', 'POST'])
 def add_object():
   print("Adding")
@@ -78,10 +99,9 @@ def add_object():
 
 @app.route('/prepare')
 def prepare():
-  print('preparing')
   if request.method == 'POST':
-    objectID = request.arg.get('id')
-    objectName = request.form.get('name')
+    print('preparing')
+    objectID = request.arg.get('id')    
     for obj in objectList:
       if obj.id == objectID:
         objName = obj.name
@@ -100,6 +120,7 @@ def prepare():
               success=False,
               message="This is GET method"
             )
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     print("checking...")
@@ -159,44 +180,22 @@ def count():
     if file and allowed_file(file.filename):
       filename = secure_filename(file.filename)
       file.save(os.path.join(UPLOAD_FOLDER, filename))
-      if request.form.get("name") == "Chicken Egg":
-        print("Start counting egg")
-        socketio.emit('countResult', {
-          'success': True,
-          'message': 'Start counting'
-        })
-        result = startCountEggs(os.path.join(UPLOAD_FOLDER, filename), filename, False, getBox = True)           
-        return jsonify(
-          success=True,
-          message="Counted",
-          name = "Chicken Egg",
-          fileName=filename,
-          result = result
-        )
-      elif request.form.get("name") == "Fire Wood":
-        print("Start counting wood")
-        result = startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence= False, getBox= True)
-        return jsonify(
-          success=True,
-          message="Counted",
-          name = "Fire Wood",
-          fileName=filename,
-          result = result
-        )
-      elif request.form.ger("name") == "Steel Pipe":
-        print("Start counting steel pipe") 
-        result = startCountWood(os.path.join(UPLOAD_FOLDER, filename), filename, showConfidence= False, getBox= True)
-        return jsonify(
-          success=True,
-          message="Counted",
-          name = "Fire Wood",
-          fileName=filename,
-          result = result
-        )
+      idObject = request.form.get("id")
+      typeObject = request.form.get("name")
+      print("Start counting " + typeObject)
+      socketio.emit('countResult', {
+        'success': True,
+        'message': 'Start counting'
+      })
+      result = startCount(os.path.join(UPLOAD_FOLDER, filename))           
       return jsonify(
-                  success=False,
-                  message="We can't count this type!"
-                )
+        success=True,
+        message="Counted",
+        name = typeObject,
+        fileName=filename,
+        result = result
+      )
+      clean()
     return jsonify(
       success=False,
       message="Only accept PNG, JPG, JPEG extension"
