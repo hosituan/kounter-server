@@ -39,6 +39,7 @@ def main(objectList):
         else:
             print("Downloading " + modelName) 
             download_file_from_google_drive(driveID, modelPath)
+            
     # egg_file_id = '129sQfXjY4doJmMcY1a-ZBRGEzJneuqNR'
     # egg_model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
     # if os.path.isfile(egg_model_path):

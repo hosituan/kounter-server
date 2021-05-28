@@ -101,6 +101,8 @@ def add_object():
 def prepare():
   if request.method == 'POST':
     print('preparing')
+    downloadModel.main(objectList)
+    print('downloaded all model')
     objectID = request.args.get('id')    
     for obj in objectList:
       if obj.id == objectID:
@@ -242,10 +244,8 @@ keras.backend.tensorflow_backend.set_session(get_session())
 
 # egg_model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
 # GlobalModel.eggModel = models.load_model(egg_model_path, backbone_name='resnet50')
-
 # wood_model_path = os.path.join('object_detector_retinanet','weights', 'woodCounter_model.h5')
 # GlobalModel.woodModel = models.load_model(wood_model_path, backbone_name='resnet50')
-
 # steel_model_path = os.path.join('object_detector_retinanet','weights', 'steelCounter_model.h5')
 # GlobalModel.steelModel = models.load_model(steel_model_path, backbone_name='resnet50')
 
