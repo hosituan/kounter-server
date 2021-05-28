@@ -113,10 +113,8 @@ def prepare():
     print('preparing')
     downloadModel.main(objectList)
     print('downloaded all model')
-    objectID = request.args.get('id')    
+    objectID = request.form.get('id')
     for obj in objectList:
-      print(obj.id)
-      print(objectID)
       if obj.id == objectID:
         objName = obj.name
         modelName = objName + '_model.h5'
