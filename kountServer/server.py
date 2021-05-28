@@ -178,7 +178,7 @@ def prepare():
         keras.backend.tensorflow_backend.set_session(get_session())
         GlobalModel.model = models.load_model(modelPath, backbone_name='resnet50')
         GlobalModel.graph = tf.get_default_graph()
-        print("Loaded model" + modelName)
+        print("Loaded model " + modelName)
         return jsonify(
               success=True,
               message="Prepared model"
