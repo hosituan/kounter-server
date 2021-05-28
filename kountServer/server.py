@@ -5,9 +5,9 @@ from os.path import join, dirname, realpath
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, send_file, jsonify
 from werkzeug.utils import secure_filename
 #from .egg_kounter import startCountEggs
-from eggKounter import startCountEggs
-from woodKounter import startCountWood
-from steelKounter import startCountSteel
+# from eggKounter import startCountEggs
+# from woodKounter import startCountWood
+# from steelKounter import startCountSteel
 from kountObject import startCount
 from globalModel import GlobalModel
 from CountObject import CountObject
