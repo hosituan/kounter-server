@@ -89,7 +89,7 @@ def startCount(filePath):
             csv_data_lst.append(row)
 
 
-        print(len(filtered_boxes))
+        print("Count result: " + len(filtered_boxes))
         count = len(filtered_boxes)  
         count_temp = 0
         dict_res = []

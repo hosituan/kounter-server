@@ -67,6 +67,17 @@ def clean():
     except Exception as e:
         print('Failed to delete %s. Reason: %s' % (file_path, e))
 
+#clean after upload
+def deleteModel(modelPath):
+  file_path = modelPath
+  try:
+      if os.path.isfile(file_path) or os.path.islink(file_path):
+          os.unlink(file_path)
+      elif os.path.isdir(file_path):
+          shutil.rmtree(file_path)
+  except Exception as e:
+      print('Failed to delete %s. Reason: %s' % (file_path, e))
+
 @app.route('/add', methods =['GET', 'POST'])
 def add_object():
   print("Adding")
@@ -106,19 +117,59 @@ def add_object():
               message="This is GET method"
             )
 
+
+@app.route('/remove', methods =['GET', 'POST'])
+def remove_object():
+  print("Removing")
+  if request.method == 'POST':
+    id = request.form.get('id')
+    name = request.form.get('name')   
+    data = {}
+    data['countObject'] = []
+    if os.path.isfile('countObjects.txt'):
+        print ("Object list exist")
+        with open('countObjects.txt') as json_file:
+          data = json.load(json_file)
+          for o in data['countObject']:
+            print(o)
+    else:
+        print ("Object list not exist")
+    for d in data['countObject']:
+      if d[id] == id:
+        data['countObject'].pop(d)
+    with open('countObjects.txt', 'w') as outfile:
+      json.dump(data, outfile)
+      modelName = id + "_" + name + '_model.h5'
+      modelPath = os.path.join('object_detector_retinanet','weights', modelName)
+      deleteModel(modelPath)
+      return jsonify(
+          success=True,
+          message="Removed from object list"
+        )
+    return jsonify(
+    success=False,
+    message="Something went wrong"
+  )
+  else:
+    return jsonify(
+              success=False,
+              message="This is GET method"
+            )
+
 @app.route('/prepare', methods = ['GET', 'POST'])
 def prepare():
   if request.method == 'POST':
-    print('preparing')
-    downloadModel.main(objectList)
-    print('downloaded all model')
+    print('Preparing...')
     loadObjects()
+    downloadModel.main(objectList)
+    print('Downloaded all models')
     objectID = request.form.get('id')
     for obj in objectList:
-      print(obj.id)
+      print("Object ID: " + obj.id)
+      print("Object Name: " +obj.name)
       if obj.id == objectID:
         objName = obj.name
-        modelName = objName + '_model.h5'
+        modelName = objectID + "_" + objName + '_model.h5'
         modelPath = os.path.join('object_detector_retinanet','weights', modelName)
         # start tensorflow backend
         tf.disable_resource_variables()
@@ -127,11 +178,15 @@ def prepare():
         keras.backend.tensorflow_backend.set_session(get_session())
         GlobalModel.model = models.load_model(modelPath, backbone_name='resnet50')
         GlobalModel.graph = tf.get_default_graph()
-        print("Loaded model")
+        print("Loaded model" + modelName)
         return jsonify(
               success=True,
               message="Prepared model"
             )
+    return jsonify(
+        success=True,
+        message="Prepared model"
+        )
   return jsonify(
               success=False,
               message="This is GET method"
@@ -226,7 +281,6 @@ def get_session():
     config.gpu_options.allow_growth = True
     return tf.compat.v1.Session(config=config)
 
-
 def loadObjects():
     if os.path.isfile('countObjects.txt'):
         print ("Object list exist")
@@ -235,24 +289,15 @@ def loadObjects():
           for countObj in data['countObject']:
             obj = CountObject(countObj['id'], countObj['name'], countObj['driveID'])
             objectList.append(obj)
-          print ("Loaded")
+          print ("Loaded all object")
     else:
         print ("Object list not exist")
-
-
 
 # get object list
 objectList = []
 loadObjects()
 # download model
 downloadModel.main(objectList)
-# egg_model_path = os.path.join('object_detector_retinanet','weights', 'eggCounter_model.h5')
-# GlobalModel.eggModel = models.load_model(egg_model_path, backbone_name='resnet50')
-# wood_model_path = os.path.join('object_detector_retinanet','weights', 'woodCounter_model.h5')
-# GlobalModel.woodModel = models.load_model(wood_model_path, backbone_name='resnet50')
-# steel_model_path = os.path.join('object_detector_retinanet','weights', 'steelCounter_model.h5')
-# GlobalModel.steelModel = models.load_model(steel_model_path, backbone_name='resnet50')
-
 
 if __name__ == "__main__":
   socketio.run(app, host='0.0.0.0', port=80, debug=False,use_reloader=False)
