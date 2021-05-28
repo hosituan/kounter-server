@@ -81,7 +81,7 @@ def add_object():
         print ("Object list exist")
         with open('countObjects.txt') as json_file:
           data = json.load(json_file)
-          for o in data:
+          for o in data['countObject']:
             print(o)
     else:
         print ("Object list not exist")
@@ -92,6 +92,14 @@ def add_object():
       })
     with open('countObjects.txt', 'w') as outfile:
       json.dump(data, outfile)
+      return jsonify(
+          success=True,
+          message="Add to object list"
+        )
+    return jsonify(
+    success=False,
+    message="Something went wrong"
+  )
 
   else:
     return jsonify(
