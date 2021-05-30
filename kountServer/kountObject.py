@@ -41,12 +41,14 @@ def startCount(filePath):
     # Run inference
     with graph.as_default():
         boxes, hard_scores, labels, soft_scores = GlobalModel.model.predict_on_batch(np.expand_dims(image, axis=0))
-
+        
+        print(soft_scores.shape)
         soft_scores = np.squeeze(soft_scores, axis=-1)
 
+        
         hard_score_rate=.3
         max_detections = 9999
-        print(soft_scores.shape)
+        
         soft_scores = hard_score_rate * hard_scores + (1 - hard_score_rate) * soft_scores
 
         # correct boxes for image scale
